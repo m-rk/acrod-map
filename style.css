@@ -88,17 +88,25 @@ button { cursor: pointer; color: inherit; }
   top: calc(var(--zoom-top) + 108px); right: 13px; width: 44px; height: 44px; border-radius: 5px;
   color: var(--ink); display: grid; place-items: center;
 }
-.tile-status { bottom: 88px; right: 14px; max-width: calc(100% - 28px); border-radius: 5px; padding: 8px 10px; font-size: .8rem; }
+.tile-status { bottom: 58px; left: 14px; max-width: calc(100% - 28px); border-radius: 5px; padding: 8px 10px; font-size: .8rem; }
 .locate-map { flex: none; width: 44px; min-height: 44px; padding: 0; border: 0; border-left: 1px solid var(--line); border-radius: 0 5px 5px 0; color: var(--cobalt); }
 .locate-map:focus-visible { outline-offset: -3px; }
 .locate-map:disabled { opacity: .5; }
 .location-status { color: var(--muted); font-size: .8rem; }
 .legend {
   position: absolute; z-index: 10; bottom: 30px; right: 14px;
-  display: flex; flex-wrap: wrap; gap: 6px 13px; align-items: center;
-  padding: 8px 10px; font-size: .77rem; font-weight: 650;
+  display: grid; justify-items: end;
+  padding: 3px 8px 8px; font-size: .77rem; font-weight: 650;
 }
-.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend .legend-toggle { width: 44px; height: 36px; }
+.legend-toggle .ui-icon { width: 15px; height: 15px; }
+.legend-toggle[aria-expanded="true"] .ui-icon { transform: rotate(180deg); }
+.legend-items { display: grid; gap: 5px; padding: 0 2px; margin: 0; list-style: none; }
+.legend-items li { display: flex; align-items: center; gap: 7px; }
+.legend.is-minimized { justify-items: center; padding-inline: 3px; }
+.legend.is-minimized .legend-items span {
+  position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+}
 .parking-symbol { display: grid; place-items: center; color: white; font-style: normal; }
 .parking-symbol.bay { background: var(--cobalt); }
 .parking-symbol.approx {
@@ -107,6 +115,7 @@ button { cursor: pointer; color: inherit; }
 .parking-symbol:is(.bay, .approx) { border-radius: 24%; }
 .parking-symbol:is(.bay, .approx)::after {
   content: ""; width: 76%; height: 76%; background: white;
+  -webkit-mask: url("assets/parking-symbol.svg") center / contain no-repeat;
   mask: url("assets/parking-symbol.svg") center / contain no-repeat;
 }
 .parking-symbol.approx::after { opacity: .85; }
@@ -222,9 +231,10 @@ dialog p { margin-top: 12px; }
   .filters button, #local-area { padding-inline: 6px; font-size: .8rem; }
   #local-area { gap: 4px; }
   #local-area .ui-icon { width: 16px; height: 16px; }
-  .legend { left: 10px; right: 10px; width: fit-content; gap: 5px 9px; padding: 6px 9px; font-size: .72rem; }
+  .legend { left: 10px; right: auto; font-size: .72rem; }
+  .legend .legend-toggle { height: 44px; }
   .explorer:has(.location-sheet:not([hidden])) .legend { display: none; }
   .location-sheet { left: 10px; width: calc(100% - 20px); }
-  .tile-status { left: 10px; right: auto; }
+  .tile-status { top: calc(var(--zoom-top) + 8px); bottom: auto; left: 10px; right: 72px; width: fit-content; }
   .leaflet-control-scale { display: none; }
 }

@@ -43,7 +43,7 @@ function parseGeoJSON(text) {
       geometry.geometries.forEach(item => validateGeometry(item, level + 1));
       return;
     }
-    if (!geometry || !Object.hasOwn(geometryDepth, geometry.type)) throw new Error("The file contains a feature with an unrecognised geometry.");
+    if (!geometry || !Object.prototype.hasOwnProperty.call(geometryDepth, geometry.type)) throw new Error("The file contains a feature with an unrecognised geometry.");
     const { type, coordinates } = geometry;
     validateCoordinates(coordinates, geometryDepth[type]);
     if (type === "LineString" || type === "MultiLineString") {
@@ -66,7 +66,7 @@ function parseGeoJSON(text) {
 
   const mappable = [];
   for (const feature of features) {
-    if (feature?.type !== "Feature" || !Object.hasOwn(feature, "geometry")) {
+    if (feature?.type !== "Feature" || !Object.prototype.hasOwnProperty.call(feature, "geometry")) {
       throw new Error("Each entry in a FeatureCollection must be a GeoJSON Feature with geometry.");
     }
     if (feature.geometry === null) continue;

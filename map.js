@@ -54,14 +54,26 @@ if (window.matchMedia("(pointer: fine)").matches) {
 const tileStatus = document.querySelector("#tile-status");
 const tiles = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
   maxZoom: closestZoom,
+  referrerPolicy: "strict-origin-when-cross-origin",
   attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>',
 });
 // Show the basemap promptly even if the parking datasets are slow.
 const tileStartup = setTimeout(() => tiles.addTo(map), 500);
 let tileLoads = 0;
-tiles.on("loading", () => { tileLoads = 0; });
-tiles.on("tileload", () => { tileLoads += 1; });
-tiles.on("load", () => { tileStatus.hidden = tileLoads > 0; });
+let tileTimeout;
+tiles.on("loading", () => {
+  tileLoads = 0;
+  clearTimeout(tileTimeout);
+  tileTimeout = setTimeout(() => { tileStatus.hidden = tileLoads > 0; }, 8000);
+});
+tiles.on("tileload", () => {
+  tileLoads += 1;
+  tileStatus.hidden = true;
+});
+tiles.on("load", () => {
+  clearTimeout(tileTimeout);
+  tileStatus.hidden = tileLoads > 0;
+});
 
 const markerLayer = L.layerGroup().addTo(map);
 const polygonLayer = L.layerGroup().addTo(map);
@@ -77,6 +89,7 @@ const contribution = document.querySelector("#contribution");
 const locateButton = document.querySelector("#locate-map");
 const locateStatus = document.querySelector("#location-status");
 const legend = document.querySelector("#parking-legend");
+const legendToggle = document.querySelector("#legend-toggle");
 const resetMap = document.querySelector("#reset-map");
 const pageControls = document.querySelector("#results-pages");
 const previousPage = document.querySelector("#previous-page");
@@ -267,13 +280,17 @@ function closeLocation(restoreFocus = false) {
   returnFocus = null;
 }
 
-function filterLocations() {
+function filterLocations({ refit = true } = {}) {
   const terms = search.value.toLowerCase().trim().split(/\s+/).filter(Boolean);
   matching = locations.filter(location => {
     const haystack = [location.name, location.suburb, location.reference, location.note, councils[location.council]].join(" ").toLowerCase();
     return (council === "all" || location.council === council) && terms.every(term => haystack.includes(term));
   });
   if (browseView) return;
+  if (!refit) {
+    refreshMap();
+    return;
+  }
   closeLocation();
   if (terms.length && !matching.length) setResultsOpen(true);
   showLocateStatus("");
@@ -337,9 +354,16 @@ function renderResults() {
 }
 
 async function loadCouncilLocations(area) {
-  const response = await fetch("sources/" + area + "/parking.geojson");
-  if (!response.ok) throw new Error("Could not load " + area + " parking data.");
-  const collection = await response.json();
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 8000);
+  let collection;
+  try {
+    const response = await fetch("sources/" + area + "/parking.geojson", { signal: controller.signal });
+    if (!response.ok) throw new Error("Could not load " + area + " parking data.");
+    collection = await response.json();
+  } finally {
+    clearTimeout(timeout);
+  }
   if (collection.type !== "FeatureCollection" || !Array.isArray(collection.features)) {
     throw new Error("Expected a GeoJSON FeatureCollection in " + area + ".");
   }
@@ -350,7 +374,7 @@ async function loadCouncilLocations(area) {
     const coords = isPoint ? geometry.coordinates : marker_coordinates;
     const [longitude, latitude] = coords || [];
     if (typeof id !== "string" || !id.startsWith(area + "-") || ids.has(id)
-        || details.council !== area || !Object.hasOwn(kinds, details.kind) || typeof details.name !== "string"
+        || details.council !== area || !Object.prototype.hasOwnProperty.call(kinds, details.kind) || typeof details.name !== "string"
         || !Number.isFinite(longitude) || Math.abs(longitude) > 180
         || !Number.isFinite(latitude) || Math.abs(latitude) > 90
         || (!isPoint && !["Polygon", "MultiPolygon"].includes(geometry.type))) {
@@ -364,21 +388,22 @@ async function loadCouncilLocations(area) {
 
 async function loadLocations() {
   const areas = Object.keys(councils);
-  const outcomes = await Promise.allSettled(areas.map(loadCouncilLocations));
-  const unavailable = [];
-  for (const [index, outcome] of outcomes.entries()) {
-    if (outcome.status === "fulfilled") {
-      for (const location of outcome.value) locations.push(location);
-    } else {
-      unavailable.push(councils[areas[index]]);
+  const loaded = new Map();
+  const outcomes = await Promise.allSettled(areas.map(async area => {
+    loaded.set(area, await loadCouncilLocations(area));
+    locations.length = 0;
+    for (const key of areas) {
+      for (const location of loaded.get(key) || []) locations.push(location);
     }
-  }
-  if (unavailable.length) {
-    const status = document.querySelector("#data-status");
+    filterLocations({ refit: false });
+  }));
+  const unavailable = areas.filter((_, index) => outcomes[index].status === "rejected").map(area => councils[area]);
+  const status = document.querySelector("#data-status");
+  if (unavailable.length && status) {
     status.textContent = "Couldn’t load parking data for " + unavailable.join(", ") + ". Try reloading.";
     status.hidden = false;
   }
-  filterLocations();
+  filterLocations({ refit: !selected && (autoLocate || council !== "all" || search.value.trim() !== "") });
   clearTimeout(tileStartup);
   tiles.addTo(map);
   const permission = await navigator.permissions?.query({ name: "geolocation" }).catch(() => null);
@@ -515,6 +540,13 @@ contribution.addEventListener("keydown", event => {
 resultsToggle.addEventListener("click", () => {
   if (resultsContent.hidden) closeLocation();
   setResultsOpen(resultsContent.hidden);
+});
+legendToggle?.addEventListener("click", () => {
+  const minimized = legend.classList.toggle("is-minimized");
+  const label = minimized ? "Expand marker key" : "Minimise marker key";
+  legendToggle.setAttribute("aria-expanded", String(!minimized));
+  legendToggle.setAttribute("aria-label", label);
+  legendToggle.title = label;
 });
 locateButton.addEventListener("click", () => useLocation());
 previousPage.addEventListener("click", () => {

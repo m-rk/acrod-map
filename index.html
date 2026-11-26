@@ -19,10 +19,10 @@
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="assets/acrod-icon.png">
   <link rel="stylesheet" href="vendor/leaflet.css">
-  <link rel="stylesheet" href="style.css?v=3956aa62faf2">
+  <link rel="stylesheet" href="style.css?v=303593dcb3c4">
   <script defer src="vendor/leaflet.js"></script>
-  <script defer src="geojson-import.js?v=8deff2296024"></script>
-  <script defer src="map.js?v=6bfe350b8d29"></script>
+  <script defer src="geojson-import.js?v=36fe73ea59a0"></script>
+  <script defer src="map.js?v=589137d59295"></script>
 </head>
 <body>
   <svg class="icon-sprite" aria-hidden="true" focusable="false"><symbol id="icon-location" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/></symbol><symbol id="icon-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol><symbol id="icon-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.4 9a2.7 2.7 0 1 1 4.2 2.2c-1 .7-1.6 1.1-1.6 2.3m0 3.5h.01"/></symbol><symbol id="icon-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z"/><circle cx="12" cy="12" r="2.5"/></symbol><symbol id="icon-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol><symbol id="icon-fit" viewBox="0 0 24 24"><path d="M9 4H4v5m11-5h5v5M4 15v5h5m11-5v5h-5"/></symbol><symbol id="icon-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol><symbol id="icon-download" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 16v4h16v-4"/></symbol><symbol id="icon-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></symbol></svg>
@@ -106,11 +106,14 @@
           </div>
           <button class="sheet-close" type="button" aria-label="Close location details"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-close"/></svg></button>
         </section>
-        <div class="legend" id="parking-legend" aria-label="Marker key">
-          <span><i class="key parking-symbol bay" aria-hidden="true"></i>Individual bay</span>
-          <span><i class="key parking-symbol approx" aria-hidden="true"></i>Approximate location</span>
-          <span><i class="key parking-symbol carpark" aria-hidden="true">P</i>Car park</span>
-          <span><i class="key parking-symbol cluster" aria-hidden="true"></i>Multiple locations</span>
+        <div class="legend" id="parking-legend" role="group" aria-label="Marker key">
+          <button class="icon-button legend-toggle" id="legend-toggle" type="button" aria-label="Minimise marker key" aria-expanded="true" aria-controls="legend-items" title="Minimise marker key"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-chevron"/></svg></button>
+          <ul class="legend-items" id="legend-items">
+            <li title="Individual bay"><i class="key parking-symbol bay" aria-hidden="true"></i><span>Individual bay</span></li>
+            <li title="Approximate location"><i class="key parking-symbol approx" aria-hidden="true"></i><span>Approximate location</span></li>
+            <li title="Car park"><i class="key parking-symbol carpark" aria-hidden="true">P</i><span>Car park</span></li>
+            <li title="Multiple locations"><i class="key parking-symbol cluster" aria-hidden="true"></i><span>Multiple locations</span></li>
+          </ul>
         </div>
       </section>
     </section>
