@@ -131,7 +131,7 @@ button { cursor: pointer; color: inherit; }
 .results-head [role="status"] { margin-left: auto; font-size: .8rem; color: var(--muted); text-align: right; }
 .results-head .ui-icon { width: 15px; height: 15px; }
 .results-head[aria-expanded="true"] .ui-icon { transform: rotate(180deg); }
-.results { overflow: auto; overscroll-behavior: contain; margin: 0; padding: 0; list-style: none; max-height: min(31dvh, 310px); }
+.results { overflow: auto; overscroll-behavior: contain; margin: 0; padding: 0; list-style: none; max-height: min(31dvh, 310px, max(72px, calc(100dvh - var(--zoom-top) - 235px))); }
 .pagination { display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 8px 10px; border-top: 1px solid var(--line); font-size: .8rem; }
 .pagination button:disabled { opacity: .55; cursor: default; }
 .results li { border-top: 1px solid var(--line); }

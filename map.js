@@ -196,20 +196,7 @@ function showLocation(location, mapPin) {
   const fromList = !mapPin;
   returnFocus = mapPin || results.querySelector('[data-location="' + location.id + '"]');
   selected = location.id;
-  if (fromList) {
-    focusPoint(location.point, location.kind === "bay" ? closestZoom : 17);
-  }
   setResultsOpen(false);
-  if (fromList) drawMap();
-  else {
-    const prior = document.querySelector(".marker.selected");
-    if (prior) prior.classList.remove("selected");
-    mapPin.classList.add("selected");
-  }
-  for (const button of results.querySelectorAll("button")) {
-    if (button.dataset.location === selected) button.setAttribute("aria-current", "true");
-    else button.removeAttribute("aria-current");
-  }
 
   sheetName.textContent = location.name;
   sheetSymbol.className = "sheet-symbol " + location.kind;
@@ -223,18 +210,30 @@ function showLocation(location, mapPin) {
   const sources = councils[location.council];
   sheetSource.href = { carpark: sources.facility, approx: sources.approximate }[location.kind] || sources.source;
   sheet.hidden = false;
+  if (fromList) {
+    focusPoint(location.point, location.kind === "bay" ? closestZoom : 17);
+  } else {
+    const { left, top, width, height } = mapPin.getBoundingClientRect();
+    const hit = document.elementFromPoint(left + width / 2, top + height / 2);
+    if (!hit?.closest("#map")) focusPoint(location.point, map.getZoom());
+  }
+  drawMap();
+  results.querySelector('[aria-current="true"]')?.removeAttribute("aria-current");
+  results.querySelector('[data-location="' + location.id + '"]')?.setAttribute("aria-current", "true");
   sheetName.focus({ preventScroll: true });
 }
 
 function closeLocation(restoreFocus = false) {
   const previous = selected;
+  const selectedMarker = document.querySelector(".marker.selected");
   selected = null;
   sheet.hidden = true;
-  document.querySelector(".marker.selected")?.classList.remove("selected");
+  selectedMarker?.classList.remove("selected");
   results.querySelector('[aria-current="true"]')?.removeAttribute("aria-current");
   if (restoreFocus) {
     const replacement = previous && results.querySelector('[data-location="' + previous + '"]');
-    const target = [returnFocus, replacement].find(button => button?.isConnected && button.getClientRects().length)
+    const markerReplacement = returnFocus?.classList.contains("marker") ? selectedMarker : null;
+    const target = [returnFocus, markerReplacement, replacement].find(button => button?.isConnected && button.getClientRects().length)
       || resultsToggle;
     target.focus();
   }
@@ -248,6 +247,7 @@ function filterLocations() {
     return (council === "all" || location.council === council) && terms.every(term => haystack.includes(term));
   });
   closeLocation();
+  if (terms.length && !matching.length) setResultsOpen(true);
   showLocateStatus("");
   fitLocations(matching);
   refreshMap();
@@ -418,6 +418,12 @@ for (const button of buttons) {
 search.addEventListener("input", () => {
   clearTimeout(searchTimer);
   searchTimer = setTimeout(filterLocations, 180);
+});
+search.addEventListener("keydown", event => {
+  if (event.key !== "Enter") return;
+  clearTimeout(searchTimer);
+  setResultsOpen(true);
+  filterLocations();
 });
 resetMap.addEventListener("click", () => fitLocations(matching));
 localArea.addEventListener("click", toggleContribution);
