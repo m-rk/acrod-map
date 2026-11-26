@@ -12,3 +12,10 @@ Snapshot retrieved 26 November 2026. Counts below describe mapped records or loc
 - **Fremantle** [Council parking page](https://www.fremantle.wa.gov.au/services-and-support/parking-and-transport/parking-locations/) · [Accessible Freo CBD map (PDF)](https://www.fremantle.wa.gov.au/document/acrod-car-park-locations/) · [Council GIS layer](https://www.arcgis.com/home/item.html?id=580c96bcae66468ea6d7ad55a85def4d).
 - **Vincent** [Council accessible parking page](https://www.vincent.wa.gov.au/our-neighbourhood/parking/accessible-parking-acrod.aspx) · [Council map with the ACROD layer selected](https://vincent.pozi.com/#/map[public]/x[115.85414]/y[-31.93136]/z[14]/filter[ac]/layers[acrodparkingbaysignage]/tab[layers]/).
 - **Basemap and Fremantle registration** [© OpenStreetMap contributors](https://www.openstreetmap.org/copyright).
+
+## Location labels
+
+Council-supplied facility names take priority. Other bay titles use the nearest named road centreline within 65 metres. The suburb gives broader context when no road meets that threshold. Street and suburb labels are approximate. Bay references preserve the identifiers shown in the original map.
+
+- **Road names** [Main Roads Western Australia Road Network](https://catalogue.data.wa.gov.au/dataset/mrwa-road-network). The Commissioner of Main Roads is the creator and owner of the source data. This map derives nearby street labels from that data under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), which includes disclaimers of warranties and liability.
+- **Suburb context** [Australian Bureau of Statistics Suburbs and Localities, ASGS Edition 3](https://geo.abs.gov.au/arcgis/rest/services/ASGS2021/SAL/MapServer), [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). These areas approximate gazetted suburb boundaries.

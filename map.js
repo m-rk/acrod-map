@@ -66,6 +66,14 @@ function link(text, url) {
   return anchor;
 }
 
+function locationDetails(location) {
+  const details = [kinds[location.kind]];
+  if (location.use) details.push(location.use);
+  if (location.bays) details.push(location.bays + (location.bays === 1 ? " bay" : " bays"));
+  if (location.reference) details.push(location.reference);
+  return details;
+}
+
 function fitLocations(list, maxZoom = 16) {
   if (!list.length) return;
   map.fitBounds(L.latLngBounds(list.map(location => location.point)), {
@@ -129,7 +137,7 @@ function drawMap() {
         interactive: false, style: { color: "#174fa5", weight: 2, fillOpacity: .22 },
       }).addTo(polygonLayer);
     }
-    const pin = marker(location.point, location.kind, location.name + ", " + kinds[location.kind],
+    const pin = marker(location.point, location.kind, location.name + ", " + (location.use || kinds[location.kind]),
       location.kind === "carpark" ? "P" : "");
     if (location.id === selected) pin.getElement().classList.add("selected");
     pin.on("click", () => showLocation(location, pin.getElement()));
@@ -157,8 +165,9 @@ function showLocation(location, mapPin) {
   sheetName.textContent = location.name;
   sheetSymbol.className = "sheet-symbol " + location.kind;
   sheetSymbol.textContent = location.kind === "carpark" ? "P" : "♿︎";
-  const metadata = ["City of " + councils[location.council].name, kinds[location.kind]];
-  if (location.bays) metadata.push(location.bays + (location.bays === 1 ? " designated bay" : " designated bays"));
+  const metadata = ["City of " + councils[location.council].name];
+  if (location.suburb && location.suburb !== councils[location.council].name) metadata.push(location.suburb);
+  metadata.push(...locationDetails(location));
   sheetKind.textContent = metadata.join(" · ");
   sheetNote.textContent = location.note || "";
   sheetNote.hidden = !location.note;
@@ -184,7 +193,7 @@ function closeLocation(restoreFocus = false) {
 function filterLocations() {
   const terms = search.value.toLowerCase().trim().split(/\s+/).filter(Boolean);
   matching = locations.filter(location => {
-    const haystack = [location.name, location.note, councils[location.council].name].join(" ").toLowerCase();
+    const haystack = [location.name, location.suburb, location.reference, location.note, councils[location.council].name].join(" ").toLowerCase();
     return (council === "all" || location.council === council) && terms.every(term => haystack.includes(term));
   });
   matching.sort((a, b) => councils[a.council].name.localeCompare(councils[b.council].name)
@@ -208,8 +217,7 @@ function filterLocations() {
     button.type = "button";
     button.dataset.location = location.id;
     const details = element("span");
-    const metadata = [councils[location.council].name, kinds[location.kind]];
-    if (location.bays) metadata.push(location.bays + (location.bays === 1 ? " bay" : " bays"));
+    const metadata = [location.suburb || councils[location.council].name, ...locationDetails(location)];
     details.append(element("strong", location.name), element("small", metadata.join(" · ")));
     const key = element("i", "", "key " + location.kind);
     key.setAttribute("aria-hidden", "true");
