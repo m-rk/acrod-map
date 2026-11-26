@@ -1,36 +1,55 @@
 <!doctype html>
-<html lang="en-AU">
+<html lang="en-AU" prefix="og: https://ogp.me/ns#">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <link rel="icon" href="data:,">
   <title>ACROD parking map | Perth, Fremantle and Vincent</title>
+  <meta name="description" content="Find designated accessible parking in Perth, Fremantle and Vincent. Search by street, suburb or landmark.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="ACROD parking map">
+  <meta property="og:description" content="Find designated accessible parking in Perth, Fremantle and Vincent. Search by street, suburb or landmark.">
+  <meta property="og:url" content="https://m-rk.github.io/acrod-map/">
+  <meta property="og:locale" content="en_AU">
+  <meta property="og:image" content="https://m-rk.github.io/acrod-map/assets/social-preview.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="ACROD parking map for Perth, Fremantle and Vincent beside a map with blue parking markers.">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/acrod-icon.png">
   <link rel="stylesheet" href="vendor/leaflet.css">
   <link rel="stylesheet" href="style.css">
   <script defer src="vendor/leaflet.js"></script>
   <script defer src="data/locations.js"></script>
+  <script defer src="geojson-import.js"></script>
   <script defer src="map.js"></script>
 </head>
 <body>
   <main>
     <header class="masthead">
-      <div class="identity"><span class="brand-icon" aria-hidden="true">♿︎</span><h1>ACROD parking</h1></div>
-      <a class="sources-link" href="#coverage">Coverage &amp; sources</a>
+      <div class="identity"><img class="brand-icon" src="assets/acrod-icon.png" width="42" height="42" alt=""><h1>ACROD parking</h1></div>
+      <button class="primary-button" id="local-area" type="button" aria-controls="contribution" aria-expanded="false">Add your area</button>
     </header>
     <section class="explorer" aria-label="Parking explorer">
-      <div class="toolbar">
+      <div class="toolbar" id="browse-tools">
+        <label class="search"><span class="magnifier" aria-hidden="true"></span><input id="search" type="search" placeholder="Search street, suburb or place" autocomplete="off" aria-label="Search locations"></label>
         <div class="filters" role="group" aria-label="Filter by council">
           <button type="button" data-council="all" aria-label="All councils" aria-pressed="true">All</button>
           <button type="button" data-council="perth" aria-pressed="false">Perth</button>
           <button type="button" data-council="fremantle" aria-pressed="false">Fremantle</button>
           <button type="button" data-council="vincent" aria-pressed="false">Vincent</button>
         </div>
-        <label class="search"><span class="magnifier" aria-hidden="true"></span><input id="search" type="search" placeholder="Search street, suburb or place" autocomplete="off" aria-label="Search locations"></label>
       </div>
       <section class="map-panel" aria-label="Interactive parking map">
         <div class="map-viewport">
           <div id="map" aria-label="Parking locations map"></div>
+          <div class="locate-control">
+            <button type="button" class="locate-map" id="locate-map">
+              <span class="location-target" aria-hidden="true"></span>Use my location
+            </button>
+            <p class="location-status" id="location-status" role="status" hidden></p>
+          </div>
           <button type="button" id="reset-map" class="reset-map" aria-label="Fit map to matching locations" title="Fit map to matching locations">⛶</button>
           <p class="tile-status" id="tile-status" role="status" hidden>Street map unavailable. Parking markers are still shown.</p>
         </div>
@@ -44,27 +63,53 @@
           </div>
           <button class="sheet-close" type="button" aria-label="Close location details">×</button>
         </section>
-        <div class="legend" aria-label="Marker key">
+        <div class="legend" id="parking-legend" aria-label="Marker key">
           <span><i class="key bay" aria-hidden="true"></i>Individual bay</span>
           <span><i class="key approx" aria-hidden="true"></i>Approximate location</span>
           <span><i class="key carpark" aria-hidden="true"></i>Car park</span>
         </div>
       </section>
-      <section class="locations" aria-labelledby="locations-title">
-        <div class="results-head"><h2 id="locations-title">Locations</h2><p id="result-count" role="status"></p></div>
-        <ol id="results" class="results" aria-label="Matching parking locations"></ol>
+      <section class="locations" id="browse-results" aria-labelledby="locations-title">
+        <div class="results-head"><h2 id="locations-title" tabindex="-1">In this map view</h2><p id="result-count" role="status"></p></div>
+        <ol id="results" class="results" aria-label="Parking locations in this map view"></ol>
+        <nav class="pagination" id="results-pages" aria-label="Location result pages" hidden>
+          <button id="previous-page" type="button">Previous</button>
+          <span id="page-number"></span>
+          <button id="next-page" type="button">Next</button>
+        </nav>
+      </section>
+      <section class="contribution" id="contribution" aria-labelledby="contribution-title" hidden>
+        <div class="contribution-heading">
+          <h2 id="contribution-title" tabindex="-1">Your local area</h2>
+          <button type="button" class="help-button" id="geojson-help-button" aria-label="About GeoJSON">i</button>
+        </div>
+        <form id="geojson-form">
+          <label for="geojson-file">Choose a GeoJSON file</label>
+          <input type="file" id="geojson-file" accept=".geojson,.json,application/geo+json,application/json">
+          <label for="geojson-text">Or paste GeoJSON</label>
+          <textarea id="geojson-text" rows="5" spellcheck="false"></textarea>
+          <button type="submit" class="primary-button">Preview on map</button>
+          <p id="import-status" role="status" hidden></p>
+        </form>
+        <div id="submit-geojson" hidden>
+          <p>The preview stays in your browser. To contribute, attach the downloaded file to a public GitHub issue.</p>
+          <div class="contribution-actions">
+            <button type="button" class="secondary-button" id="download-geojson">Download for GitHub</button>
+            <a href="https://github.com/m-rk/acrod-map/issues/new?title=Accessible%20parking%20data%20for%20my%20area&amp;body=Area%3A%0A%0ASource%20URL%3A%0A%0AData%20licence%3A%0A%0AAttach%20the%20downloaded%20JSON%20or%20link%20to%20the%20published%20dataset.">Open a GitHub issue</a>
+          </div>
+        </div>
       </section>
     </section>
-    <section class="coverage" id="coverage" aria-labelledby="coverage-title">
-      <div class="coverage-intro"><h2 id="coverage-title">Coverage &amp; sources</h2><p>This map shows selected council records and has no live availability data. Street names and suburbs give approximate context. Use the pin to locate the recorded position and check signs and bay markings on arrival.</p></div>
-      <div class="source-grid">
-        <article><h3>City of Perth</h3><p>Individual on-street locations use deduplicated council bay polygons, including two designated for pick-up or set-down only. City car park pins show a facility location. Each car park may contain multiple bays.</p><a href="https://catalogue.data.wa.gov.au/dataset/perth-parking-bays-restrictions">WA data catalogue</a><a href="https://experience.arcgis.com/experience/b961bb1f42b8489eac34e41abf4df2ed">Council parking map</a></article>
-        <article><h3>City of Fremantle</h3><p>Individual bay pins use the council’s 2021 GIS layer. Approximate pins mark CBD map symbols with no nearby match in that layer. One symbol may cover several bays.</p><a href="https://www.fremantle.wa.gov.au/services-and-support/parking-and-transport/parking-locations/">Council parking page</a><a href="https://www.fremantle.wa.gov.au/document/acrod-car-park-locations/">Accessible Freo map (PDF)</a><a href="https://www.arcgis.com/home/item.html?id=580c96bcae66468ea6d7ad55a85def4d">Council GIS layer</a></article>
-        <article><h3>City of Vincent</h3><p>Individual bay pins mark the positions in the council’s ACROD signage layer.</p><a href="https://www.vincent.wa.gov.au/our-neighbourhood/parking/accessible-parking-acrod.aspx">Council accessible parking page</a><a href="https://vincent.pozi.com/#/map[public]/x[115.85414]/y[-31.93136]/z[14]/filter[ac]/layers[acrodparkingbaysignage]/tab[layers]/">Council online map</a></article>
-      </div>
-      <p>Street labels use the <a href="https://catalogue.data.wa.gov.au/dataset/mrwa-road-network">Main Roads WA Road Network</a>. Suburb labels use <a href="https://geo.abs.gov.au/arcgis/rest/services/ASGS2021/SAL/MapServer">ABS suburb areas</a>.</p>
-    </section>
-    <noscript>This interactive map requires JavaScript. The council source links above work without it.</noscript>
+    <dialog id="geojson-help" aria-labelledby="geojson-help-title">
+      <h2 id="geojson-help-title">About GeoJSON</h2>
+      <p>GeoJSON is a text file that stores map locations and details together. If your council already publishes a GIS layer, look for <strong>Download GeoJSON</strong> or export the layer from QGIS or ArcGIS in WGS 84.</p>
+      <p>Starting with a spreadsheet or map? Give your AI the source and try this prompt.</p>
+      <blockquote>Convert this accessible-parking source to a WGS 84 GeoJSON FeatureCollection. Use [longitude, latitude] for supplied coordinates and preserve each bay or car park name, source reference and restriction. Leave unknown fields blank. Flag rows without coordinates for me to check on a map before export. Return plain JSON.</blockquote>
+      <p>For a PDF or an image, check each pin against a real map. Include the original source URL and its reuse licence when contributing.</p>
+      <form method="dialog"><button class="secondary-button">Done</button></form>
+    </dialog>
+    <footer class="footer"><a href="coverage.html">Coverage &amp; sources</a></footer>
+    <noscript>The interactive map requires JavaScript. <a href="coverage.html">View the council sources</a>.</noscript>
   </main>
 </body>
 </html>

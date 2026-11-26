@@ -15,7 +15,8 @@ Snapshot retrieved 26 November 2026. Counts below describe mapped records or loc
 
 ## Location labels
 
-Council-supplied facility names take priority. Other bay titles use the nearest named road centreline within 65 metres. The suburb gives broader context when no road meets that threshold. Street and suburb labels are approximate. Bay references preserve the identifiers shown in the original map.
+Council-supplied facility names take priority. Other bay titles use a named road centreline within 65 metres where available. For the remaining records, nearby street and landmark names were checked against the parking coordinates. Labels give local context. Pins show the original recorded positions. Bay references preserve the identifiers shown in the original map.
 
 - **Road names** [Main Roads Western Australia Road Network](https://catalogue.data.wa.gov.au/dataset/mrwa-road-network). The Commissioner of Main Roads is the creator and owner of the source data. This map derives nearby street labels from that data under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), which includes disclaimers of warranties and liability.
 - **Suburb context** [Australian Bureau of Statistics Suburbs and Localities, ASGS Edition 3](https://geo.abs.gov.au/arcgis/rest/services/ASGS2021/SAL/MapServer), [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). These areas approximate gazetted suburb boundaries.
+- **Landmarks and additional streets** [© OpenStreetMap contributors](https://www.openstreetmap.org/copyright), [ODbL](https://opendatacommons.org/licenses/odbl/1-0/). Facility naming also references [City of Vincent parks and facilities](https://www.vincent.wa.gov.au/parks-and-facilities) and [Rottnest Express terminal locations](https://rottnestexpress.com.au/ferry-information/our-locations-parking/).
