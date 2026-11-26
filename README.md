@@ -1,18 +1,19 @@
 # ACROD parking map
 
-Open [index.html](index.html) in a browser. The parking data and map controls are part of this local preview. The OpenStreetMap street layer uses an internet connection. For a loopback URL, run `python3 -m http.server 8765 --bind 127.0.0.1` from this folder and open <http://127.0.0.1:8765/>.
+[**Open the live map**](https://m-rk.github.io/acrod-map/)
 
-## Coverage and provenance
+Find designated accessible parking in the Cities of Perth, Fremantle and Vincent. Choose a council or search for a place, then select a pin or list result for details.
 
-Snapshot retrieved 26 November 2026. Counts below describe mapped records or locations. Signs and bay markings apply on arrival. The map has no occupancy data.
+## Read the markers
 
-| Council | Mapped locations | Method |
-| --- | ---: | --- |
-| Perth | 101 on-street locations and 30 car parks | Used the ArcGIS web map's ACROD filter on the WA catalogue's parking restrictions layer. Of 102 matching restriction records, two had the same polygon. Both source IDs and distinct descriptions are retained together. Pins show polygon centres. Two records are marked pick-up or set-down only. The car park layer contributes facility-level points with a positive ACROD count. |
-| Fremantle | 254 individual bay points and 13 approximate CBD locations | The council's GIS layer, last edited in March 2021, supplies individual bay coordinates. The 2026 CBD PDF contributes approximate symbols with no GIS point within 60 metres of the projected location. An affine fit to 14 OpenStreetMap street intersections registered the PDF. Leave-one-out checks across these controls gave differences up to 24 metres. Printed symbols may represent several bays or a car park. |
-| Vincent | 130 individual bay signage points | Used the WGS84 point geometry from the ACROD Parking Bay Signage layer loaded by the council's public Pozi map. Points locate the mapped signage. The snapshot includes car park names where supplied by that layer. |
+- **Solid circle** for an individual bay.
+- **Dashed circle** for an approximate location.
+- **Square with a P** for a car park that has accessible bays.
 
-- **Perth** [WA data catalogue, CC BY 4.0](https://catalogue.data.wa.gov.au/dataset/perth-parking-bays-restrictions) · [Council ArcGIS map](https://experience.arcgis.com/experience/b961bb1f42b8489eac34e41abf4df2ed) · [Restriction layer](https://services7.arcgis.com/v8XBa2naYNQGOjlG/arcgis/rest/services/PS_AST_PARKINGBAYSEXPLODED_PV/FeatureServer/0) · [Car park layer](https://services7.arcgis.com/v8XBa2naYNQGOjlG/arcgis/rest/services/PS_OTH_CARPARKCENTROID_PV/FeatureServer/0).
-- **Fremantle** [Council parking page](https://www.fremantle.wa.gov.au/services-and-support/parking-and-transport/parking-locations/) · [Accessible Freo CBD map (PDF)](https://www.fremantle.wa.gov.au/document/acrod-car-park-locations/) · [Council GIS layer](https://www.arcgis.com/home/item.html?id=580c96bcae66468ea6d7ad55a85def4d).
-- **Vincent** [Council accessible parking page](https://www.vincent.wa.gov.au/our-neighbourhood/parking/accessible-parking-acrod.aspx) · [Council map with the ACROD layer selected](https://vincent.pozi.com/#/map[public]/x[115.85414]/y[-31.93136]/z[14]/filter[ac]/layers[acrodparkingbaysignage]/tab[layers]/).
-- **Basemap and Fremantle registration** [© OpenStreetMap contributors](https://www.openstreetmap.org/copyright).
+The map shows selected council records. Live availability is unavailable. Check signs and bay markings when you arrive.
+
+![Desktop map filtered to Perth, with parking markers and a list of locations](screenshots/perth-map.png)
+
+<img src="screenshots/fremantle-mobile.png" alt="Mobile map showing the approximate ACROD parking location at Fremantle Prison" width="320">
+
+[Council sources and coverage](https://m-rk.github.io/acrod-map/#coverage) · [Data details](data/README.md)

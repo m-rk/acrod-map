@@ -15,32 +15,44 @@
 <body>
   <main>
     <header class="masthead">
-      <div class="identity"><span class="brand-icon" aria-hidden="true">♿︎</span><div><h1>ACROD parking map</h1><p>Perth, Fremantle and Vincent</p></div></div>
-      <a class="sources-link" href="#coverage">Coverage &amp; sources <span aria-hidden="true">↓</span></a>
+      <div class="identity"><span class="brand-icon" aria-hidden="true">♿︎</span><h1>ACROD parking</h1></div>
+      <a class="sources-link" href="#coverage">Coverage &amp; sources</a>
     </header>
     <section class="explorer" aria-label="Parking explorer">
-      <aside class="sidebar" aria-label="Parking filters and location list">
-        <h2>Find parking</h2>
+      <div class="toolbar">
         <div class="filters" role="group" aria-label="Filter by council">
-          <button type="button" data-council="all" aria-pressed="true">All councils</button>
+          <button type="button" data-council="all" aria-label="All councils" aria-pressed="true">All</button>
           <button type="button" data-council="perth" aria-pressed="false">Perth</button>
           <button type="button" data-council="fremantle" aria-pressed="false">Fremantle</button>
           <button type="button" data-council="vincent" aria-pressed="false">Vincent</button>
         </div>
         <label class="search"><span class="magnifier" aria-hidden="true"></span><input id="search" type="search" placeholder="Search locations" autocomplete="off" aria-label="Search locations"></label>
-        <div class="results-head"><h3>Locations</h3><p id="result-count" role="status"></p></div>
-        <ol id="results" class="results" aria-label="Matching parking locations"></ol>
-      </aside>
+      </div>
       <section class="map-panel" aria-label="Interactive parking map">
-        <div id="map" aria-label="Parking locations map"></div>
-        <div class="map-heading"><span class="map-dot"></span><span id="map-area">All councils</span></div>
-        <button type="button" id="reset-map" class="reset-map" aria-label="Fit map to matching locations" title="Fit map to matching locations">⛶</button>
+        <div class="map-viewport">
+          <div id="map" aria-label="Parking locations map"></div>
+          <button type="button" id="reset-map" class="reset-map" aria-label="Fit map to matching locations" title="Fit map to matching locations">⛶</button>
+          <p class="tile-status" id="tile-status" role="status" hidden>Street map unavailable. Parking markers are still shown.</p>
+        </div>
+        <section class="location-sheet" id="location-sheet" aria-labelledby="location-name" hidden>
+          <span class="sheet-symbol" id="location-symbol" aria-hidden="true"></span>
+          <div class="sheet-content">
+            <h2 id="location-name" tabindex="-1"></h2>
+            <p class="sheet-kind" id="location-kind"></p>
+            <p id="location-note"></p>
+            <a id="location-source">View council source</a>
+          </div>
+          <button class="sheet-close" type="button" aria-label="Close location details">×</button>
+        </section>
         <div class="legend" aria-label="Marker key">
           <span><i class="key bay" aria-hidden="true"></i>Individual bay</span>
           <span><i class="key approx" aria-hidden="true"></i>Approximate location</span>
           <span><i class="key carpark" aria-hidden="true"></i>Car park</span>
         </div>
-        <p class="tile-status" id="tile-status" role="status" hidden>Street map unavailable. Parking markers are still shown.</p>
+      </section>
+      <section class="locations" aria-labelledby="locations-title">
+        <div class="results-head"><h2 id="locations-title">Locations</h2><p id="result-count" role="status"></p></div>
+        <ol id="results" class="results" aria-label="Matching parking locations"></ol>
       </section>
     </section>
     <section class="coverage" id="coverage" aria-labelledby="coverage-title">

@@ -1,7 +1,6 @@
 "use strict";
 
 const councils = {
-  all: { name: "All councils" },
   perth: {
     name: "Perth",
     source: "https://catalogue.data.wa.gov.au/dataset/perth-parking-bays-restrictions",
@@ -41,11 +40,17 @@ const results = document.querySelector("#results");
 const count = document.querySelector("#result-count");
 const buttons = [...document.querySelectorAll("[data-council]")];
 const overviewZoom = 12;
-const mapArea = document.querySelector("#map-area");
+const sheet = document.querySelector("#location-sheet");
+const sheetName = document.querySelector("#location-name");
+const sheetKind = document.querySelector("#location-kind");
+const sheetSymbol = document.querySelector("#location-symbol");
+const sheetNote = document.querySelector("#location-note");
+const sheetSource = document.querySelector("#location-source");
 const locations = window.parkingLocations;
 let council = "all";
 let matching = [];
 let selected = null;
+let returnFocus = null;
 let searchTimer;
 
 function element(tag, text, className) {
@@ -64,12 +69,12 @@ function link(text, url) {
 function fitLocations(list, maxZoom = 16) {
   if (!list.length) return;
   map.fitBounds(L.latLngBounds(list.map(location => location.point)), {
-    paddingTopLeft: [35, 58], paddingBottomRight: [45, 77], maxZoom, animate: false,
+    paddingTopLeft: [28, 36], paddingBottomRight: [57, 44], maxZoom, animate: false,
   });
 }
 
 function marker(point, kind, label, content) {
-  const size = kind === "cluster" ? 35 : 23;
+  const size = kind === "cluster" ? 36 : 28;
   const icon = L.divIcon({
     className: "marker " + kind,
     html: content || "",
@@ -93,7 +98,7 @@ function groupsAtZoom() {
       if (isCouncilOverview()) key = location.council;
       else {
         const pixel = map.project(location.point, zoom);
-        key = [Math.floor(pixel.x / 46), Math.floor(pixel.y / 46)].join("/");
+        key = [Math.floor(pixel.x / 58), Math.floor(pixel.y / 58)].join("/");
       }
     }
     if (!grouping.has(key)) grouping.set(key, []);
@@ -121,7 +126,7 @@ function drawMap() {
     const location = group[0];
     if (location.geometry && map.getZoom() >= 18) {
       L.geoJSON(location.geometry, {
-        interactive: false, style: { color: "#005e57", weight: 2, fillOpacity: .22 },
+        interactive: false, style: { color: "#174fa5", weight: 2, fillOpacity: .22 },
       }).addTo(polygonLayer);
     }
     const pin = marker(location.point, location.kind, location.name + ", " + kinds[location.kind],
@@ -133,12 +138,10 @@ function drawMap() {
 
 function showLocation(location, mapPin) {
   const fromList = !mapPin;
+  returnFocus = mapPin || results.querySelector('[data-location="' + location.id + '"]');
   selected = location.id;
   if (fromList) {
     map.setView(location.point, location.kind === "bay" ? 19 : 17, { animate: false });
-    if (window.matchMedia("(max-width: 760px)").matches) {
-      document.querySelector(".map-panel").scrollIntoView({ block: "nearest" });
-    }
   }
   if (fromList) drawMap();
   else {
@@ -151,31 +154,31 @@ function showLocation(location, mapPin) {
     else button.removeAttribute("aria-current");
   }
 
-  const popup = element("div");
-  popup.append(element("strong", location.name));
-  popup.append(element("p", "City of " + councils[location.council].name + " · " + kinds[location.kind], "popup-kind"));
-  if (location.bays) {
-    popup.append(element("p", location.bays + (location.bays === 1 ? " designated bay" : " designated bays") + " reported by council."));
-  }
-  if (location.note) popup.append(element("p", location.note));
+  sheetName.textContent = location.name;
+  sheetSymbol.className = "sheet-symbol " + location.kind;
+  sheetSymbol.textContent = location.kind === "carpark" ? "P" : "♿︎";
+  const metadata = ["City of " + councils[location.council].name, kinds[location.kind]];
+  if (location.bays) metadata.push(location.bays + (location.bays === 1 ? " designated bay" : " designated bays"));
+  sheetKind.textContent = metadata.join(" · ");
+  sheetNote.textContent = location.note || "";
+  sheetNote.hidden = !location.note;
   const sources = councils[location.council];
-  const source = { carpark: sources.facility, approx: sources.approximate }[location.kind] || sources.source;
-  popup.append(link("View council source", source));
-  const detail = L.popup({
-    maxWidth: Math.min(265, map.getSize().x - 126),
-    autoPanPaddingTopLeft: [14, 52],
-    autoPanPaddingBottomRight: [65, 65],
-  })
-    .setLatLng(location.point).setContent(popup).openOn(map);
-  if (fromList) {
-    popup.tabIndex = -1;
-    popup.focus({ preventScroll: true });
-    detail.on("remove", () => {
-      if (detail.getElement().contains(document.activeElement)) {
-        results.querySelector('[data-location="' + location.id + '"]')?.focus({ preventScroll: true });
-      }
-    });
+  sheetSource.href = { carpark: sources.facility, approx: sources.approximate }[location.kind] || sources.source;
+  sheet.hidden = false;
+  sheet.scrollIntoView({ block: "nearest" });
+  sheetName.focus({ preventScroll: true });
+}
+
+function closeLocation(restoreFocus = false) {
+  selected = null;
+  sheet.hidden = true;
+  document.querySelector(".marker.selected")?.classList.remove("selected");
+  results.querySelector('[aria-current="true"]')?.removeAttribute("aria-current");
+  if (restoreFocus) {
+    const target = returnFocus?.isConnected ? returnFocus : map.getContainer();
+    target.focus();
   }
+  returnFocus = null;
 }
 
 function filterLocations() {
@@ -186,9 +189,7 @@ function filterLocations() {
   });
   matching.sort((a, b) => councils[a.council].name.localeCompare(councils[b.council].name)
     || a.name.localeCompare(b.name, "en-AU", { numeric: true }));
-  selected = null;
-  map.closePopup();
-  mapArea.textContent = councils[council].name;
+  closeLocation();
   count.textContent = matching.length + (matching.length === 1 ? " mapped location" : " mapped locations");
   results.replaceChildren();
 
@@ -239,6 +240,10 @@ search.addEventListener("input", () => {
   searchTimer = setTimeout(filterLocations, 180);
 });
 document.querySelector("#reset-map").addEventListener("click", () => fitLocations(matching));
+sheet.querySelector("button").addEventListener("click", () => closeLocation(true));
+sheet.addEventListener("keydown", event => {
+  if (event.key === "Escape") closeLocation(true);
+});
 map.on("zoomend", drawMap);
 map.setView([-31.994, 115.804], 11);
 filterLocations();
