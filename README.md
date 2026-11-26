@@ -13,10 +13,8 @@ Find designated accessible parking in the Cities of Perth, Fremantle and Vincent
 
 The map shows selected council records. Live availability is unavailable. Check signs and bay markings when you arrive.
 
-![Full-screen desktop map with floating search and a collapsed location list](screenshots/perth-map.png)
+![Desktop ACROD map with floating search, council filters and parking markers](screenshots/perth-map.png)
 
-<img src="screenshots/mobile-bay.png" alt="Full-screen mobile map showing bay details near Murray Street" width="320">
+[Council sources and coverage](https://m-rk.github.io/acrod-map/coverage.html)
 
-Use **Add your area** to preview a GeoJSON file or pasted data, then follow the GitHub link to contribute it for review.
-
-[Council sources and coverage](https://m-rk.github.io/acrod-map/coverage.html) · [Download or contribute GeoJSON](sources/README.md)
+Have accessible parking data for your area? [Contribute a GeoJSON file](sources/README.md).
