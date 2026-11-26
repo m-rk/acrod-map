@@ -34,16 +34,8 @@ button { cursor: pointer; color: inherit; }
   background: var(--paper); border: 1px solid var(--line); border-radius: 10px;
   box-shadow: 0 3px 16px #12233c28;
 }
-.toolbar {
-  --toolbar-padding: 11px;
-  --logo-inset: 5px;
-  display: grid; gap: 7px; padding: var(--toolbar-padding);
-}
-.masthead {
-  --header-offset: calc(var(--logo-inset) - var(--toolbar-padding) - 1px);
-  display: flex; align-items: center; gap: 12px;
-  margin-block-start: var(--header-offset); margin-inline-start: var(--header-offset);
-}
+.toolbar { display: grid; gap: 7px; padding: 11px; }
+.masthead { display: flex; align-items: center; gap: 12px; }
 .masthead h1 { font-size: 2.65rem; letter-spacing: -.05em; }
 .brand-icon {
   display: block; flex: none; width: 57px; height: 57px;
@@ -201,7 +193,7 @@ dialog blockquote { margin: 12px 0; background: var(--tint); padding: 10px 13px;
   .source-grid { grid-template-columns: 1fr; }
   .explorer { --zoom-top: 218px; }
   .map-top { top: 22px; left: 17px; width: min(460px, calc(100% - 27px)); }
-  .toolbar { --toolbar-padding: 8px; --logo-inset: 4px; gap: 5px; }
+  .toolbar { padding: 8px; gap: 5px; }
   .masthead { gap: 9px; }
   .masthead h1 { font-size: 1.4rem; }
   .brand-icon { width: 46px; height: 46px; }
