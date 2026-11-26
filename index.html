@@ -26,31 +26,37 @@
   <script defer src="map.js"></script>
 </head>
 <body>
-  <main>
-    <header class="masthead">
-      <div class="identity"><img class="brand-icon" src="assets/acrod-icon.png" width="42" height="42" alt=""><h1>ACROD parking</h1></div>
-      <button class="primary-button" id="local-area" type="button" aria-controls="contribution" aria-expanded="false">Add your area</button>
-    </header>
+  <svg class="icon-sprite" aria-hidden="true" focusable="false"><symbol id="icon-location" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/></symbol><symbol id="icon-pin" viewBox="0 0 24 24"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></symbol><symbol id="icon-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol><symbol id="icon-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.4 9a2.7 2.7 0 1 1 4.2 2.2c-1 .7-1.6 1.1-1.6 2.3m0 3.5h.01"/></symbol><symbol id="icon-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z"/><circle cx="12" cy="12" r="2.5"/></symbol><symbol id="icon-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol><symbol id="icon-fit" viewBox="0 0 24 24"><path d="M9 4H4v5m11-5h5v5M4 15v5h5m11-5v5h-5"/></symbol><symbol id="icon-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol><symbol id="icon-download" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 16v4h16v-4"/></symbol></svg>
+  <main class="map-app">
     <section class="explorer" aria-label="Parking explorer">
-      <div class="toolbar" id="browse-tools">
-        <label class="search"><span class="magnifier" aria-hidden="true"></span><input id="search" type="search" placeholder="Search street, suburb or place" autocomplete="off" aria-label="Search locations"></label>
-        <div class="filters" role="group" aria-label="Filter by council">
-          <button type="button" data-council="all" aria-label="All councils" aria-pressed="true">All</button>
-          <button type="button" data-council="perth" aria-pressed="false">Perth</button>
-          <button type="button" data-council="fremantle" aria-pressed="false">Fremantle</button>
-          <button type="button" data-council="vincent" aria-pressed="false">Vincent</button>
+      <div class="map-top">
+        <div class="toolbar" id="browse-tools">
+          <header class="masthead">
+            <img class="brand-icon" src="assets/acrod-icon.png" width="84" height="84" alt="">
+            <h1>ACROD parking</h1>
+          </header>
+          <div class="search">
+            <span class="magnifier" aria-hidden="true"></span>
+            <input id="search" type="search" placeholder="Search street, suburb or place" autocomplete="off" aria-label="Search locations">
+            <button type="button" class="locate-map" id="locate-map" aria-label="Use my location" title="Use my location"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-location"/></svg></button>
+          </div>
+          <p class="location-status" id="location-status" role="status" hidden></p>
+          <div class="filters" role="group" aria-label="Filter by council">
+            <button type="button" data-council="all" aria-label="All councils" aria-pressed="true">All</button>
+            <button type="button" data-council="perth" aria-pressed="false">Perth</button>
+            <button type="button" data-council="fremantle" aria-pressed="false">Fremantle</button>
+            <button type="button" data-council="vincent" aria-pressed="false">Vincent</button>
+          </div>
         </div>
+        <nav class="mode-nav" aria-label="Map actions">
+          <button class="secondary-button" id="find-bays" type="button" aria-pressed="true"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-pin"/></svg>Find a bay</button>
+          <button class="primary-button" id="local-area" type="button" aria-controls="contribution" aria-expanded="false"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-plus"/></svg>Add your area</button>
+        </nav>
       </div>
       <section class="map-panel" aria-label="Interactive parking map">
         <div class="map-viewport">
           <div id="map" aria-label="Parking locations map"></div>
-          <div class="locate-control">
-            <button type="button" class="locate-map" id="locate-map">
-              <span class="location-target" aria-hidden="true"></span>Use my location
-            </button>
-            <p class="location-status" id="location-status" role="status" hidden></p>
-          </div>
-          <button type="button" id="reset-map" class="reset-map" aria-label="Fit map to matching locations" title="Fit map to matching locations">⛶</button>
+          <button type="button" id="reset-map" class="reset-map" aria-label="Fit map to matching locations" title="Fit map to matching locations"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-fit"/></svg></button>
           <p class="tile-status" id="tile-status" role="status" hidden>Street map unavailable. Parking markers are still shown.</p>
         </div>
         <section class="location-sheet" id="location-sheet" aria-labelledby="location-name" hidden>
@@ -61,7 +67,7 @@
             <p id="location-note"></p>
             <a id="location-source">View council source</a>
           </div>
-          <button class="sheet-close" type="button" aria-label="Close location details">×</button>
+          <button class="sheet-close" type="button" aria-label="Close location details"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-close"/></svg></button>
         </section>
         <div class="legend" id="parking-legend" aria-label="Marker key">
           <span><i class="key bay" aria-hidden="true"></i>Individual bay</span>
@@ -70,31 +76,40 @@
         </div>
       </section>
       <section class="locations" id="browse-results" aria-labelledby="locations-title">
-        <div class="results-head"><h2 id="locations-title" tabindex="-1">In this map view</h2><p id="result-count" role="status"></p></div>
-        <ol id="results" class="results" aria-label="Parking locations in this map view"></ol>
-        <nav class="pagination" id="results-pages" aria-label="Location result pages" hidden>
-          <button id="previous-page" type="button">Previous</button>
-          <span id="page-number"></span>
-          <button id="next-page" type="button">Next</button>
-        </nav>
+        <h2 id="locations-title">
+          <button type="button" class="results-head" id="results-toggle" aria-controls="results-content" aria-expanded="false">
+            <span>In this map view</span><span id="result-count" role="status"></span><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-chevron"/></svg>
+          </button>
+        </h2>
+        <div id="results-content" hidden>
+          <ol id="results" class="results" aria-label="Parking locations in this map view"></ol>
+          <nav class="pagination" id="results-pages" aria-label="Location result pages" hidden>
+            <button id="previous-page" type="button">Previous</button>
+            <span id="page-number"></span>
+            <button id="next-page" type="button">Next</button>
+          </nav>
+        </div>
       </section>
       <section class="contribution" id="contribution" aria-labelledby="contribution-title" hidden>
         <div class="contribution-heading">
           <h2 id="contribution-title" tabindex="-1">Your local area</h2>
-          <button type="button" class="help-button" id="geojson-help-button" aria-label="About GeoJSON">i</button>
+          <div class="form-actions">
+            <button type="button" class="help-button" id="geojson-help-button" aria-label="About GeoJSON" title="About GeoJSON"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-help"/></svg></button>
+            <button type="button" class="help-button" id="close-contribution" aria-label="Close contribution form" title="Close contribution form"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-close"/></svg></button>
+          </div>
         </div>
         <form id="geojson-form">
           <label for="geojson-file">Choose a GeoJSON file</label>
           <input type="file" id="geojson-file" accept=".geojson,.json,application/geo+json,application/json">
           <label for="geojson-text">Or paste GeoJSON</label>
           <textarea id="geojson-text" rows="5" spellcheck="false"></textarea>
-          <button type="submit" class="primary-button">Preview on map</button>
+          <button type="submit" class="primary-button"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-eye"/></svg>Preview on map</button>
           <p id="import-status" role="status" hidden></p>
         </form>
         <div id="submit-geojson" hidden>
           <p>The preview stays in your browser. To contribute, attach the downloaded file to a public GitHub issue.</p>
           <div class="contribution-actions">
-            <button type="button" class="secondary-button" id="download-geojson">Download for GitHub</button>
+            <button type="button" class="secondary-button" id="download-geojson"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-download"/></svg>Download for GitHub</button>
             <a href="https://github.com/m-rk/acrod-map/issues/new?title=Accessible%20parking%20data%20for%20my%20area&amp;body=Area%3A%0A%0ASource%20URL%3A%0A%0AData%20licence%3A%0A%0AAttach%20the%20downloaded%20JSON%20or%20link%20to%20the%20published%20dataset.">Open a GitHub issue</a>
           </div>
         </div>

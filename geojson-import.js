@@ -78,7 +78,7 @@ function parseGeoJSON(text) {
   return { data: { type: "FeatureCollection", features: mappable }, skipped: features.length - mappable.length, original: input };
 }
 
-function setupGeoJSONImport(map, onPreview) {
+function setupGeoJSONImport(map, onPreview, viewPadding) {
   const form = document.querySelector("#geojson-form");
   const fileInput = form.querySelector("#geojson-file");
   const textInput = form.querySelector("#geojson-text");
@@ -128,12 +128,11 @@ function setupGeoJSONImport(map, onPreview) {
       preview.addLayer(layer);
       exportData = original;
       onPreview();
-      map.fitBounds(bounds, { padding: [42, 65], maxZoom: 16, animate: false });
       const number = data.features.length;
       message(number + (number === 1 ? " feature on the map." : " features on the map.")
         + (skipped ? " Skipped " + skipped + " without locations." : ""));
       submit.hidden = false;
-      if (window.matchMedia("(max-width: 760px)").matches) map.getContainer().scrollIntoView({ block: "nearest" });
+      map.fitBounds(bounds, { ...viewPadding(), maxZoom: 16, animate: false });
     } catch (error) {
       message(error.message, true);
     }

@@ -2,7 +2,7 @@
 
 [**Open the live map**](https://m-rk.github.io/acrod-map/)
 
-Find designated accessible parking in the Cities of Perth, Fremantle and Vincent. Use **Use my location** to find mapped parking within 25 km, or search by street, suburb or landmark. Select a pin or list result for details.
+Find designated accessible parking in the Cities of Perth, Fremantle and Vincent. Use the location icon in the search box to find mapped parking within 25 km, or search by street, suburb or landmark. Open **Find a bay** for the list or select a pin on the map.
 
 ## Read the markers
 
@@ -12,9 +12,9 @@ Find designated accessible parking in the Cities of Perth, Fremantle and Vincent
 
 The map shows selected council records. Live availability is unavailable. Check signs and bay markings when you arrive.
 
-![Desktop map with the current-location button, parking markers and a list of locations in view](screenshots/perth-map.png)
+![Full-screen desktop map with floating search and a collapsed location list](screenshots/perth-map.png)
 
-<img src="screenshots/fremantle-mobile.png" alt="Mobile map showing the approximate ACROD parking location at Fremantle Prison" width="320">
+<img src="screenshots/mobile-bay.png" alt="Full-screen mobile map showing bay details near Murray Street" width="320">
 
 Use **Add your area** to preview a GeoJSON file or pasted data, then follow the GitHub link to contribute it for review.
 

@@ -44,6 +44,8 @@ const results = document.querySelector("#results");
 const count = document.querySelector("#result-count");
 const buttons = [...document.querySelectorAll("[data-council]")];
 const explorer = document.querySelector(".explorer");
+const mapTop = document.querySelector(".map-top");
+const findBays = document.querySelector("#find-bays");
 const localArea = document.querySelector("#local-area");
 const contribution = document.querySelector("#contribution");
 const locateButton = document.querySelector("#locate-map");
@@ -53,6 +55,8 @@ const pageControls = document.querySelector("#results-pages");
 const previousPage = document.querySelector("#previous-page");
 const nextPage = document.querySelector("#next-page");
 const pageNumber = document.querySelector("#page-number");
+const resultsToggle = document.querySelector("#results-toggle");
+const resultsContent = document.querySelector("#results-content");
 const overviewZoom = 12;
 const sheet = document.querySelector("#location-sheet");
 const sheetName = document.querySelector("#location-name");
@@ -76,7 +80,7 @@ const imports = setupGeoJSONImport(map, () => {
   locationRequest += 1;
   locateButton.disabled = false;
   showLocateStatus("");
-});
+}, viewPadding);
 
 function element(tag, text, className) {
   const node = document.createElement(tag);
@@ -93,11 +97,32 @@ function locationDetails(location) {
   return details;
 }
 
+function viewPadding() {
+  const narrow = window.matchMedia("(max-width: 760px)").matches;
+  const size = map.getSize();
+  const dock = document.querySelector("#browse-results");
+  const top = Math.ceil(mapTop.getBoundingClientRect().bottom) + (narrow ? 15 : 20);
+  const bottom = browseView && narrow ? contribution.offsetHeight + 36
+    : dock.offsetHeight + (sheet.hidden ? 0 : sheet.offsetHeight + 6) + 43;
+  const right = browseView && !narrow ? contribution.offsetWidth + 85 : 68;
+  const topInset = Math.min(top, size.y - 90);
+  return {
+    paddingTopLeft: [24, Math.max(15, topInset)],
+    paddingBottomRight: [right, Math.max(18, Math.min(bottom, size.y - topInset - 55))],
+  };
+}
+
 function fitLocations(list, maxZoom = 16) {
   if (!list.length) return;
   map.fitBounds(L.latLngBounds(list.map(location => location.point)), {
-    paddingTopLeft: [28, 36], paddingBottomRight: [57, 44], maxZoom, animate: false,
+    ...viewPadding(), maxZoom, animate: false,
   });
+}
+
+function focusPoint(point, zoom) {
+  const { paddingTopLeft: [left, top], paddingBottomRight: [right, bottom] } = viewPadding();
+  const centre = map.project(point, zoom).subtract([(left - right) / 2, (top - bottom) / 2]);
+  map.setView(map.unproject(centre, zoom), zoom, { animate: false });
 }
 
 function marker(point, kind, label, content) {
@@ -172,8 +197,9 @@ function showLocation(location, mapPin) {
   returnFocus = mapPin || results.querySelector('[data-location="' + location.id + '"]');
   selected = location.id;
   if (fromList) {
-    map.setView(location.point, location.kind === "bay" ? closestZoom : 17, { animate: false });
+    focusPoint(location.point, location.kind === "bay" ? closestZoom : 17);
   }
+  setResultsOpen(false);
   if (fromList) drawMap();
   else {
     const prior = document.querySelector(".marker.selected");
@@ -197,7 +223,6 @@ function showLocation(location, mapPin) {
   const sources = councils[location.council];
   sheetSource.href = { carpark: sources.facility, approx: sources.approximate }[location.kind] || sources.source;
   sheet.hidden = false;
-  sheet.scrollIntoView({ block: "nearest" });
   sheetName.focus({ preventScroll: true });
 }
 
@@ -209,7 +234,8 @@ function closeLocation(restoreFocus = false) {
   results.querySelector('[aria-current="true"]')?.removeAttribute("aria-current");
   if (restoreFocus) {
     const replacement = previous && results.querySelector('[data-location="' + previous + '"]');
-    const target = returnFocus?.isConnected ? returnFocus : replacement || map.getContainer();
+    const target = [returnFocus, replacement].find(button => button?.isConnected && button.getClientRects().length)
+      || resultsToggle;
     target.focus();
   }
   returnFocus = null;
@@ -306,7 +332,7 @@ function useLocation(onLoad = false) {
     }).bindTooltip("Your location").addTo(locationLayer);
 
     if (browseView) {
-      map.setView(userPoint, 15, { animate: false });
+      focusPoint(userPoint, 15);
       showLocateStatus("");
       return;
     }
@@ -321,11 +347,11 @@ function useLocation(onLoad = false) {
     }
     if (nearest) {
       map.fitBounds(L.latLngBounds([userPoint, nearest.point]), {
-        paddingTopLeft: [36, 82], paddingBottomRight: [62, 45], maxZoom: 16, animate: false,
+        ...viewPadding(), maxZoom: 16, animate: false,
       });
       showLocateStatus("");
     } else {
-      map.setView(userPoint, 13, { animate: false });
+      focusPoint(userPoint, 13);
       showLocateStatus("No matching parking records within 25 km.");
     }
   }, error => {
@@ -335,6 +361,11 @@ function useLocation(onLoad = false) {
       ? "Location access is off. You can still move the map."
       : "Couldn’t get your location. Try again or move the map.");
   }, { timeout: 8000, maximumAge: 120000 });
+}
+
+function setResultsOpen(open) {
+  resultsContent.hidden = !open;
+  resultsToggle.setAttribute("aria-expanded", String(open));
 }
 
 function toggleContribution() {
@@ -347,7 +378,6 @@ function toggleContribution() {
     browseView = null;
     imports.clear();
     setContributionVisibility(false);
-    map.invalidateSize({ pan: false });
     map.setView(center, zoom, { animate: false });
     refreshMap();
     localArea.focus();
@@ -358,19 +388,20 @@ function toggleContribution() {
   markerLayer.clearLayers();
   polygonLayer.clearLayers();
   setContributionVisibility(true);
-  map.invalidateSize({ pan: false });
   document.querySelector("#contribution-title").focus({ preventScroll: true });
   useLocation();
 }
 
 function setContributionVisibility(active) {
   explorer.classList.toggle("contribution-mode", active);
-  for (const id of ["browse-tools", "browse-results", "parking-legend"]) {
+  for (const id of ["browse-results", "parking-legend"]) {
     document.getElementById(id).hidden = active;
   }
+  search.disabled = active;
+  for (const button of buttons) button.disabled = active;
   contribution.hidden = !active;
   resetMap.hidden = active;
-  localArea.textContent = active ? "Back to map" : "Add your area";
+  findBays.setAttribute("aria-pressed", String(!active));
   localArea.setAttribute("aria-expanded", String(active));
 }
 
@@ -390,6 +421,21 @@ search.addEventListener("input", () => {
 });
 resetMap.addEventListener("click", () => fitLocations(matching));
 localArea.addEventListener("click", toggleContribution);
+document.querySelector("#close-contribution").addEventListener("click", toggleContribution);
+contribution.addEventListener("keydown", event => {
+  if (event.key === "Escape") toggleContribution();
+});
+findBays.addEventListener("click", () => {
+  if (browseView) toggleContribution();
+  closeLocation();
+  setResultsOpen(true);
+  if (!visible.length) fitLocations(matching);
+  resultsToggle.focus({ preventScroll: true });
+});
+resultsToggle.addEventListener("click", () => {
+  if (resultsContent.hidden) closeLocation();
+  setResultsOpen(resultsContent.hidden);
+});
 locateButton.addEventListener("click", () => useLocation());
 previousPage.addEventListener("click", () => {
   page -= 1;
@@ -406,6 +452,10 @@ sheet.addEventListener("keydown", event => {
   if (event.key === "Escape") closeLocation(true);
 });
 map.setView([-31.994, 115.804], 11);
+new ResizeObserver(() => {
+  const controls = window.matchMedia("(max-width: 760px)").matches ? mapTop : findBays.parentElement;
+  explorer.style.setProperty("--zoom-top", Math.ceil(controls.getBoundingClientRect().bottom + 3) + "px");
+}).observe(mapTop);
 map.on("moveend", refreshMap);
 map.on("dragstart", () => showLocateStatus(""));
 filterLocations();
