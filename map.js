@@ -21,10 +21,50 @@ const closestZoom = 19;
 const nearbyLimitMetres = 25000;
 const pageSize = 25;
 const map = L.map("map", {
-  zoomControl: false, scrollWheelZoom: false, fadeAnimation: false, minZoom: 2, maxZoom: closestZoom,
+  zoomControl: false, scrollWheelZoom: false, bounceAtZoomLimits: false,
+  fadeAnimation: false, minZoom: 2, maxZoom: closestZoom,
 });
 L.control.zoom({ position: "topright" }).addTo(map);
 L.control.scale({ imperial: false }).addTo(map);
+
+const mapCanvas = map.getContainer();
+let pinchDelta = 0;
+let lastWheelPinch = -Infinity;
+let gestureStartZoom = null;
+function zoomAtPointer(event, target) {
+  const zoom = Math.max(map.getMinZoom(), Math.min(closestZoom, target));
+  if (zoom !== map.getZoom()) {
+    map.setZoomAround(map.mouseEventToContainerPoint(event), zoom, { animate: false });
+  }
+}
+
+mapCanvas.addEventListener("wheel", event => {
+  if (!event.ctrlKey) return;
+  event.preventDefault();
+  if (gestureStartZoom !== null) return;
+  if (event.timeStamp - lastWheelPinch > 180) pinchDelta = 0;
+  lastWheelPinch = event.timeStamp;
+  const pixelsPerUnit = [1, 16, mapCanvas.clientHeight][event.deltaMode] || 1;
+  pinchDelta -= event.deltaY * pixelsPerUnit;
+  const steps = Math.trunc(pinchDelta / 48);
+  if (!steps) return;
+  pinchDelta %= 48;
+  zoomAtPointer(event, map.getZoom() + steps);
+}, { passive: false });
+
+// Desktop Safari exposes trackpad pinches as gesture events. Leaflet handles touchscreens.
+if (window.matchMedia("(pointer: fine)").matches) {
+  mapCanvas.addEventListener("gesturestart", event => {
+    event.preventDefault();
+    gestureStartZoom = map.getZoom();
+  });
+  mapCanvas.addEventListener("gesturechange", event => {
+    if (gestureStartZoom === null) return;
+    event.preventDefault();
+    zoomAtPointer(event, gestureStartZoom + Math.round(Math.log2(event.scale)));
+  });
+  document.addEventListener("gestureend", () => { gestureStartZoom = null; });
+}
 
 const tileStatus = document.querySelector("#tile-status");
 const tiles = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -45,11 +85,11 @@ const count = document.querySelector("#result-count");
 const buttons = [...document.querySelectorAll("[data-council]")];
 const explorer = document.querySelector(".explorer");
 const mapTop = document.querySelector(".map-top");
-const findBays = document.querySelector("#find-bays");
 const localArea = document.querySelector("#local-area");
 const contribution = document.querySelector("#contribution");
 const locateButton = document.querySelector("#locate-map");
 const locateStatus = document.querySelector("#location-status");
+const legend = document.querySelector("#parking-legend");
 const resetMap = document.querySelector("#reset-map");
 const pageControls = document.querySelector("#results-pages");
 const previousPage = document.querySelector("#previous-page");
@@ -98,17 +138,16 @@ function locationDetails(location) {
 }
 
 function viewPadding() {
-  const narrow = window.matchMedia("(max-width: 760px)").matches;
   const size = map.getSize();
-  const dock = document.querySelector("#browse-results");
-  const top = Math.ceil(mapTop.getBoundingClientRect().bottom) + (narrow ? 15 : 20);
-  const bottom = browseView && narrow ? contribution.offsetHeight + 36
-    : dock.offsetHeight + (sheet.hidden ? 0 : sheet.offsetHeight + 6) + 43;
-  const right = browseView && !narrow ? contribution.offsetWidth + 85 : 68;
-  const topInset = Math.min(top, size.y - 90);
+  const panel = mapTop.getBoundingClientRect();
+  if (size.x - panel.right >= 220 && panel.bottom > size.y * .55) {
+    return { paddingTopLeft: [Math.ceil(panel.right) + 18, 24], paddingBottomRight: [68, 44] };
+  }
+  const bottom = Math.max(sheet.offsetHeight, legend.offsetHeight) + 44;
+  const topInset = Math.min(Math.ceil(panel.bottom) + 15, size.y - 90);
   return {
     paddingTopLeft: [24, Math.max(15, topInset)],
-    paddingBottomRight: [right, Math.max(18, Math.min(bottom, size.y - topInset - 55))],
+    paddingBottomRight: [68, Math.max(18, Math.min(bottom, size.y - topInset - 55))],
   };
 }
 
@@ -393,7 +432,6 @@ function toggleContribution() {
 }
 
 function setContributionVisibility(active) {
-  explorer.classList.toggle("contribution-mode", active);
   for (const id of ["browse-results", "parking-legend"]) {
     document.getElementById(id).hidden = active;
   }
@@ -401,7 +439,6 @@ function setContributionVisibility(active) {
   for (const button of buttons) button.disabled = active;
   contribution.hidden = !active;
   resetMap.hidden = active;
-  findBays.setAttribute("aria-pressed", String(!active));
   localArea.setAttribute("aria-expanded", String(active));
 }
 
@@ -431,13 +468,6 @@ document.querySelector("#close-contribution").addEventListener("click", toggleCo
 contribution.addEventListener("keydown", event => {
   if (event.key === "Escape") toggleContribution();
 });
-findBays.addEventListener("click", () => {
-  if (browseView) toggleContribution();
-  closeLocation();
-  setResultsOpen(true);
-  if (!visible.length) fitLocations(matching);
-  resultsToggle.focus({ preventScroll: true });
-});
 resultsToggle.addEventListener("click", () => {
   if (resultsContent.hidden) closeLocation();
   setResultsOpen(resultsContent.hidden);
@@ -458,10 +488,13 @@ sheet.addEventListener("keydown", event => {
   if (event.key === "Escape") closeLocation(true);
 });
 map.setView([-31.994, 115.804], 11);
-new ResizeObserver(() => {
-  const controls = window.matchMedia("(max-width: 760px)").matches ? mapTop : findBays.parentElement;
-  explorer.style.setProperty("--zoom-top", Math.ceil(controls.getBoundingClientRect().bottom + 3) + "px");
-}).observe(mapTop);
+const controlsObserver = new ResizeObserver(() => {
+  const panel = mapTop.getBoundingClientRect();
+  const top = explorer.clientWidth - panel.right >= 68 ? panel.top : panel.bottom + 3;
+  explorer.style.setProperty("--zoom-top", Math.ceil(top) + "px");
+});
+controlsObserver.observe(explorer);
+controlsObserver.observe(mapTop);
 map.on("moveend", refreshMap);
 map.on("dragstart", () => showLocateStatus(""));
 filterLocations();
