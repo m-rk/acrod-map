@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <link rel="icon" href="data:,">
+  <title>ACROD parking map | Perth, Fremantle and Vincent</title>
+  <link rel="stylesheet" href="vendor/leaflet.css">
+  <link rel="stylesheet" href="style.css">
+  <script defer src="vendor/leaflet.js"></script>
+  <script defer src="data/locations.js"></script>
+  <script defer src="map.js"></script>
+</head>
+<body>
+  <main>
+    <header class="masthead">
+      <div class="identity"><span class="brand-icon" aria-hidden="true">♿︎</span><div><h1>ACROD parking map</h1><p>Perth, Fremantle and Vincent</p></div></div>
+      <a class="sources-link" href="#coverage">Coverage &amp; sources <span aria-hidden="true">↓</span></a>
+    </header>
+    <section class="explorer" aria-label="Parking explorer">
+      <aside class="sidebar" aria-label="Parking filters and location list">
+        <h2>Find parking</h2>
+        <div class="filters" role="group" aria-label="Filter by council">
+          <button type="button" data-council="all" aria-pressed="true">All councils</button>
+          <button type="button" data-council="perth" aria-pressed="false">Perth</button>
+          <button type="button" data-council="fremantle" aria-pressed="false">Fremantle</button>
+          <button type="button" data-council="vincent" aria-pressed="false">Vincent</button>
+        </div>
+        <label class="search"><span class="magnifier" aria-hidden="true"></span><input id="search" type="search" placeholder="Search locations" autocomplete="off" aria-label="Search locations"></label>
+        <div class="results-head"><h3>Locations</h3><p id="result-count" role="status"></p></div>
+        <ol id="results" class="results" aria-label="Matching parking locations"></ol>
+      </aside>
+      <section class="map-panel" aria-label="Interactive parking map">
+        <div id="map" aria-label="Parking locations map"></div>
+        <div class="map-heading"><span class="map-dot"></span><span id="map-area">All councils</span></div>
+        <button type="button" id="reset-map" class="reset-map" aria-label="Fit map to matching locations" title="Fit map to matching locations">⛶</button>
+        <div class="legend" aria-label="Marker key">
+          <span><i class="key bay" aria-hidden="true"></i>Individual bay</span>
+          <span><i class="key approx" aria-hidden="true"></i>Approximate location</span>
+          <span><i class="key carpark" aria-hidden="true"></i>Car park</span>
+        </div>
+        <p class="tile-status" id="tile-status" role="status" hidden>Street map unavailable. Parking markers are still shown.</p>
+      </section>
+    </section>
+    <section class="coverage" id="coverage" aria-labelledby="coverage-title">
+      <div class="coverage-intro"><h2 id="coverage-title">Coverage &amp; sources</h2><p>This map shows a snapshot of selected council records. Coverage varies by council. Check signs and bay markings when you arrive. Availability can change throughout the day and this map has no occupancy data.</p></div>
+      <div class="source-grid">
+        <article><h3>City of Perth</h3><p>Individual on-street locations use deduplicated council bay polygons, including two designated for pick-up or set-down only. City car park pins show a facility location. Each car park may contain multiple bays.</p><a href="https://catalogue.data.wa.gov.au/dataset/perth-parking-bays-restrictions">WA data catalogue</a><a href="https://experience.arcgis.com/experience/b961bb1f42b8489eac34e41abf4df2ed">Council parking map</a></article>
+        <article><h3>City of Fremantle</h3><p>Individual bay pins use the council’s 2021 GIS layer. Approximate pins mark CBD map symbols with no nearby match in that layer. One symbol may cover several bays.</p><a href="https://www.fremantle.wa.gov.au/services-and-support/parking-and-transport/parking-locations/">Council parking page</a><a href="https://www.fremantle.wa.gov.au/document/acrod-car-park-locations/">Accessible Freo map (PDF)</a><a href="https://www.arcgis.com/home/item.html?id=580c96bcae66468ea6d7ad55a85def4d">Council GIS layer</a></article>
+        <article><h3>City of Vincent</h3><p>Individual bay pins mark the positions in the council’s ACROD signage layer.</p><a href="https://www.vincent.wa.gov.au/our-neighbourhood/parking/accessible-parking-acrod.aspx">Council accessible parking page</a><a href="https://vincent.pozi.com/#/map[public]/x[115.85414]/y[-31.93136]/z[14]/filter[ac]/layers[acrodparkingbaysignage]/tab[layers]/">Council online map</a></article>
+      </div>
+    </section>
+    <noscript>This interactive map requires JavaScript. The council source links above work without it.</noscript>
+  </main>
+</body>
+</html>
