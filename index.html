@@ -19,14 +19,14 @@
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="assets/acrod-icon.png">
   <link rel="stylesheet" href="vendor/leaflet.css">
-  <link rel="stylesheet" href="style.css?v=8e17db2e6197">
+  <link rel="stylesheet" href="style.css?v=ca0ebdcc1bcf">
   <script defer src="vendor/leaflet.js"></script>
   <script defer src="data/locations.js?v=51e068af900b"></script>
-  <script defer src="geojson-import.js?v=896ea3463454"></script>
-  <script defer src="map.js?v=2ba5e25c3b09"></script>
+  <script defer src="geojson-import.js?v=8deff2296024"></script>
+  <script defer src="map.js?v=96c1bb2ef60e"></script>
 </head>
 <body>
-  <svg class="icon-sprite" aria-hidden="true" focusable="false"><symbol id="icon-location" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/></symbol><symbol id="icon-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol><symbol id="icon-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.4 9a2.7 2.7 0 1 1 4.2 2.2c-1 .7-1.6 1.1-1.6 2.3m0 3.5h.01"/></symbol><symbol id="icon-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z"/><circle cx="12" cy="12" r="2.5"/></symbol><symbol id="icon-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol><symbol id="icon-fit" viewBox="0 0 24 24"><path d="M9 4H4v5m11-5h5v5M4 15v5h5m11-5v5h-5"/></symbol><symbol id="icon-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol><symbol id="icon-download" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 16v4h16v-4"/></symbol></svg>
+  <svg class="icon-sprite" aria-hidden="true" focusable="false"><symbol id="icon-location" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/></symbol><symbol id="icon-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol><symbol id="icon-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.4 9a2.7 2.7 0 1 1 4.2 2.2c-1 .7-1.6 1.1-1.6 2.3m0 3.5h.01"/></symbol><symbol id="icon-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z"/><circle cx="12" cy="12" r="2.5"/></symbol><symbol id="icon-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol><symbol id="icon-fit" viewBox="0 0 24 24"><path d="M9 4H4v5m11-5h5v5M4 15v5h5m11-5v5h-5"/></symbol><symbol id="icon-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol><symbol id="icon-download" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 16v4h16v-4"/></symbol><symbol id="icon-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></symbol></svg>
   <main class="map-app">
     <section class="explorer" aria-label="Parking explorer">
       <div class="map-top">
@@ -70,10 +70,7 @@
           <section class="contribution" id="contribution" aria-labelledby="contribution-title" hidden>
             <div class="contribution-heading">
               <h2 id="contribution-title" tabindex="-1">Your local area</h2>
-              <div class="form-actions">
-                <button type="button" class="help-button" id="geojson-help-button" aria-label="About GeoJSON" title="About GeoJSON"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-help"/></svg></button>
-                <button type="button" class="help-button" id="close-contribution" aria-label="Close contribution form" title="Close contribution form"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-close"/></svg></button>
-              </div>
+              <button type="button" class="icon-button geojson-help-button" id="geojson-help-button" aria-label="About GeoJSON" aria-haspopup="dialog" title="About GeoJSON"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-help"/></svg></button>
             </div>
             <form id="geojson-form">
               <label for="geojson-file">Choose a GeoJSON file</label>
@@ -117,12 +114,21 @@
       </section>
     </section>
     <dialog id="geojson-help" aria-labelledby="geojson-help-title">
-      <h2 id="geojson-help-title">About GeoJSON</h2>
+      <div class="dialog-heading">
+        <h2 id="geojson-help-title">About GeoJSON</h2>
+        <form method="dialog">
+          <button type="submit" class="icon-button" aria-label="Close GeoJSON help" title="Close GeoJSON help" autofocus><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-close"/></svg></button>
+        </form>
+      </div>
       <p>GeoJSON is a text file that stores map locations and details together. If your council already publishes a GIS layer, look for <strong>Download GeoJSON</strong> or export the layer from QGIS or ArcGIS in WGS 84.</p>
-      <p>Starting with a spreadsheet or map? Give your AI the source and try this prompt.</p>
-      <blockquote>Convert this accessible-parking source to a WGS 84 GeoJSON FeatureCollection. Use [longitude, latitude] for supplied coordinates and preserve each bay or car park name, source reference and restriction. Leave unknown fields blank. Flag rows without coordinates for me to check on a map before export. Return plain JSON.</blockquote>
+      <p>Starting with a spreadsheet or map? Give your AI the source and try this prompt:</p>
+      <div class="geojson-prompt">
+        <button type="button" class="icon-button" id="copy-prompt" aria-label="Copy prompt" title="Copy prompt"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-copy"/></svg></button>
+        <blockquote id="geojson-prompt">Convert this accessible-parking source to a WGS 84 GeoJSON FeatureCollection. Use [longitude, latitude] for supplied coordinates and preserve each bay or car park name, source reference and restriction. Leave unknown fields blank. Flag rows without coordinates for me to check on a map before export. Return plain JSON.</blockquote>
+      </div>
+      <p id="copy-status" role="status"></p>
       <p>For a PDF or an image, check each pin against a real map. Include the original source URL and its reuse licence when contributing.</p>
-      <form method="dialog"><button class="secondary-button">Done</button></form>
+      <p><a href="https://github.com/m-rk/acrod-map/blob/main/sources/README.md">How to contribute data with a pull request</a></p>
     </dialog>
     <footer class="footer"><a href="coverage.html">Coverage &amp; sources</a></footer>
     <noscript>The interactive map requires JavaScript. <a href="coverage.html">View the council sources</a>.</noscript>

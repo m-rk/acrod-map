@@ -407,21 +407,26 @@ function setResultsOpen(open) {
   resultsToggle.setAttribute("aria-expanded", String(open));
 }
 
-function toggleContribution() {
-  clearTimeout(searchTimer);
+function closeContribution() {
+  if (!browseView) return;
+  const { center, zoom } = browseView;
+  browseView = null;
   locationRequest += 1;
   locateButton.disabled = false;
   showLocateStatus("");
+  imports.clear();
+  setContributionVisibility(false);
+  map.setView(center, zoom, { animate: false });
+  refreshMap();
+}
+
+function toggleContribution() {
   if (browseView) {
-    const { center, zoom } = browseView;
-    browseView = null;
-    imports.clear();
-    setContributionVisibility(false);
-    map.setView(center, zoom, { animate: false });
-    refreshMap();
+    closeContribution();
     localArea.focus();
     return;
   }
+  clearTimeout(searchTimer);
   browseView = { center: map.getCenter(), zoom: map.getZoom() };
   closeLocation();
   markerLayer.clearLayers();
@@ -435,8 +440,6 @@ function setContributionVisibility(active) {
   for (const id of ["browse-results", "parking-legend"]) {
     document.getElementById(id).hidden = active;
   }
-  search.disabled = active;
-  for (const button of buttons) button.disabled = active;
   contribution.hidden = !active;
   resetMap.hidden = active;
   localArea.setAttribute("aria-expanded", String(active));
@@ -444,6 +447,7 @@ function setContributionVisibility(active) {
 
 function selectCouncil(value) {
   clearTimeout(searchTimer);
+  closeContribution();
   council = value;
   for (const button of buttons) button.setAttribute("aria-pressed", String(button.dataset.council === council));
   filterLocations();
@@ -454,17 +458,18 @@ for (const button of buttons) {
 }
 search.addEventListener("input", () => {
   clearTimeout(searchTimer);
+  closeContribution();
   searchTimer = setTimeout(filterLocations, 180);
 });
 search.addEventListener("keydown", event => {
   if (event.key !== "Enter") return;
   clearTimeout(searchTimer);
+  closeContribution();
   setResultsOpen(true);
   filterLocations();
 });
 resetMap.addEventListener("click", () => fitLocations(matching));
 localArea.addEventListener("click", toggleContribution);
-document.querySelector("#close-contribution").addEventListener("click", toggleContribution);
 contribution.addEventListener("keydown", event => {
   if (event.key === "Escape") toggleContribution();
 });

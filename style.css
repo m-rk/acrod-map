@@ -41,14 +41,14 @@ button { cursor: pointer; color: inherit; }
   display: block; flex: none; width: 57px; height: 57px;
   border-radius: 18%; background: var(--cobalt);
 }
-.primary-button, .secondary-button, .locate-map, .pagination button, .help-button {
+.primary-button, .secondary-button, .locate-map, .pagination button {
   display: inline-flex; align-items: center; justify-content: center; gap: 7px;
   border: 1px solid var(--line); border-radius: 6px; min-height: 44px; padding: 6px 11px;
   background: var(--paper); font-size: .87rem; font-weight: 650;
 }
 .primary-button { color: white; background: var(--cobalt); border-color: var(--cobalt); }
 .primary-button:hover { background: #123e82; }
-.secondary-button:hover, .locate-map:hover, .pagination button:hover:not(:disabled), .help-button:hover { background: var(--tint); }
+.secondary-button:hover, .locate-map:hover, .pagination button:hover:not(:disabled), .icon-button:hover { background: var(--tint); }
 .footer { position: absolute; z-index: 15; bottom: 4px; left: 14px; padding: 2px 6px; background: var(--paper); border-radius: 4px; font-size: .76rem; }
 .map-app noscript { position: absolute; z-index: 25; bottom: 35px; left: 12px; padding: 10px; background: var(--paper); }
 .filter-row { display: flex; align-items: center; gap: 6px; min-width: 0; }
@@ -61,7 +61,6 @@ button { cursor: pointer; color: inherit; }
 .filters button { scroll-margin-inline: 12px; }
 .filters button:focus-visible { outline-offset: -3px; }
 .filters button[aria-pressed="true"]:focus-visible { outline-color: white; }
-.filters button:disabled { opacity: .55; cursor: default; }
 #local-area[aria-expanded="true"] .ui-icon { transform: rotate(45deg); }
 .filters button {
   min-height: 44px; padding: 7px 9px; border: 1px solid transparent;
@@ -160,10 +159,14 @@ button { cursor: pointer; color: inherit; }
   max-height: clamp(110px, calc(72dvh - 145px), 435px); overflow: auto;
   overscroll-behavior: contain; padding: 8px 3px 3px;
 }
-.contribution-heading, .contribution-actions, .form-actions { display: flex; align-items: center; gap: 6px; }
+.contribution-heading, .contribution-actions, .dialog-heading { display: flex; align-items: center; gap: 6px; }
 .contribution-heading { justify-content: space-between; }
 .contribution-heading h2 { font-size: 1.14rem; }
-.help-button { width: 44px; padding: 0; color: var(--cobalt); }
+.icon-button {
+  display: grid; place-items: center; flex: none; width: 44px; height: 44px; padding: 0;
+  border: 0; border-radius: 6px; background: transparent; color: var(--cobalt);
+}
+.geojson-help-button .ui-icon { width: 29px; height: 29px; stroke-width: 2; }
 #geojson-form { display: grid; gap: 7px; margin-top: 12px; align-items: start; }
 #geojson-form label { font-size: .88rem; font-weight: 650; }
 #geojson-file { width: 100%; padding: 6px 0 12px; font-size: .85rem; }
@@ -177,8 +180,17 @@ button { cursor: pointer; color: inherit; }
 .contribution-actions { justify-content: flex-start; flex-wrap: wrap; margin-top: 8px; }
 dialog { width: min(540px, calc(100% - 24px)); color: var(--ink); border: 1px solid var(--line); border-radius: 10px; padding: 20px; }
 dialog::backdrop { background: #12233c85; }
-dialog p, dialog form { margin-top: 12px; }
-dialog blockquote { margin: 12px 0; background: var(--tint); padding: 10px 13px; }
+.dialog-heading { justify-content: space-between; }
+dialog p { margin-top: 12px; }
+.geojson-prompt {
+  position: relative; margin-top: 12px; padding: 10px 53px 10px 13px;
+  border-left: 4px solid var(--ink); background: var(--tint);
+}
+.geojson-prompt blockquote { margin: 0; }
+.geojson-prompt .icon-button { position: absolute; top: 3px; right: 3px; }
+.geojson-prompt .icon-button:hover { background: var(--paper); }
+#copy-status { font-size: .86rem; color: var(--muted); }
+#copy-status:empty { margin: 0; }
 .coverage-page { max-width: 1020px; }
 .coverage { padding: 27px 0 0; scroll-margin: 15px; }
 .coverage h2 { font-size: 1.3rem; }

@@ -85,6 +85,8 @@ function setupGeoJSONImport(map, onPreview, viewPadding) {
   const status = form.querySelector("#import-status");
   const submit = document.querySelector("#submit-geojson");
   const help = document.querySelector("#geojson-help");
+  const prompt = help.querySelector("#geojson-prompt");
+  const copyStatus = help.querySelector("#copy-status");
   const preview = L.featureGroup().addTo(map);
   const renderer = L.canvas({ padding: .3 });
   let exportData = null;
@@ -171,7 +173,24 @@ function setupGeoJSONImport(map, onPreview, viewPadding) {
     else if (fileInput.files.length) previewFile(fileInput.files[0]);
     else message("Choose a GeoJSON file or paste GeoJSON to preview it.", true);
   });
-  document.querySelector("#geojson-help-button").addEventListener("click", () => help.showModal());
+  document.querySelector("#geojson-help-button").addEventListener("click", () => {
+    copyStatus.textContent = "";
+    help.showModal();
+  });
+  help.querySelector("#copy-prompt").addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(prompt.textContent.trim());
+      if (help.open) copyStatus.textContent = "Prompt copied.";
+    } catch {
+      if (!help.open) return;
+      const selection = window.getSelection();
+      const range = document.createRange();
+      range.selectNodeContents(prompt);
+      selection.removeAllRanges();
+      selection.addRange(range);
+      copyStatus.textContent = "Copy the highlighted prompt manually.";
+    }
+  });
   document.querySelector("#download-geojson").addEventListener("click", () => {
     const url = URL.createObjectURL(new Blob([JSON.stringify(exportData) + "\n"], { type: "application/json" }));
     const download = document.createElement("a");
