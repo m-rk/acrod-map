@@ -34,13 +34,20 @@ button { cursor: pointer; color: inherit; }
   background: var(--paper); border: 1px solid var(--line); border-radius: 10px;
   box-shadow: 0 3px 16px #12233c28;
 }
-.toolbar { position: relative; display: grid; gap: 7px; padding: 11px; }
-.masthead { display: flex; align-items: center; min-height: 48px; padding-left: 47px; }
+.toolbar {
+  --toolbar-padding: 11px;
+  --logo-inset: 5px;
+  display: grid; gap: 7px; padding: var(--toolbar-padding);
+}
+.masthead {
+  --header-offset: calc(var(--logo-inset) - var(--toolbar-padding) - 1px);
+  display: flex; align-items: center; gap: 12px;
+  margin-block-start: var(--header-offset); margin-inline-start: var(--header-offset);
+}
 .masthead h1 { font-size: 2.65rem; letter-spacing: -.05em; }
 .brand-icon {
-  position: absolute; top: 0; left: 0; transform: translate(-25%, -25%);
-  display: block; width: 67px; height: 67px; border: 5px solid var(--paper);
-  border-radius: 23%; background: var(--cobalt); box-shadow: 0 3px 11px #12233c38;
+  display: block; flex: none; width: 57px; height: 57px;
+  border-radius: 18%; background: var(--cobalt);
 }
 .primary-button, .secondary-button, .locate-map, .pagination button, .help-button {
   display: inline-flex; align-items: center; justify-content: center; gap: 7px;
@@ -194,10 +201,10 @@ dialog blockquote { margin: 12px 0; background: var(--tint); padding: 10px 13px;
   .source-grid { grid-template-columns: 1fr; }
   .explorer { --zoom-top: 218px; }
   .map-top { top: 22px; left: 17px; width: min(460px, calc(100% - 27px)); }
-  .toolbar { padding: 8px; gap: 5px; }
-  .masthead { min-height: 35px; padding-left: 36px; }
+  .toolbar { --toolbar-padding: 8px; --logo-inset: 4px; gap: 5px; }
+  .masthead { gap: 9px; }
   .masthead h1 { font-size: 1.4rem; }
-  .brand-icon { width: 54px; height: 54px; border-width: 4px; }
+  .brand-icon { width: 46px; height: 46px; }
   .filters { gap: 2px; }
   .filters button, #local-area { padding-inline: 6px; font-size: .8rem; }
   #local-area { gap: 4px; }
