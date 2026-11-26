@@ -99,16 +99,26 @@ button { cursor: pointer; color: inherit; }
   padding: 8px 10px; font-size: .77rem; font-weight: 650;
 }
 .legend span { display: inline-flex; align-items: center; gap: 6px; }
-.key { display: inline-block; width: 13px; height: 13px; }
-.key.bay, .marker.bay, .sheet-symbol.bay { background: var(--cobalt); border-radius: 50%; }
-.key.approx, .marker.approx, .sheet-symbol.approx { background: var(--paper); border: 2px dashed var(--cobalt); border-radius: 50%; }
-.key.carpark, .marker.carpark, .sheet-symbol.carpark { background: var(--ink); border-radius: 3px; }
+.parking-symbol { display: grid; place-items: center; color: white; font-style: normal; }
+.parking-symbol.bay { background: var(--cobalt); }
+.parking-symbol.approx {
+  background: repeating-linear-gradient(135deg, var(--cobalt) 0 4px, #3670bc 4px 8px);
+}
+.parking-symbol:is(.bay, .approx) { border-radius: 24%; }
+.parking-symbol:is(.bay, .approx)::after {
+  content: ""; width: 76%; height: 76%; background: white;
+  mask: url("assets/parking-symbol.svg") center / contain no-repeat;
+}
+.parking-symbol.approx::after { opacity: .85; }
+.parking-symbol.carpark { background: var(--ink); border-radius: 24%; }
+.parking-symbol.cluster { background: var(--cobalt); border-radius: 50%; }
+.key { width: 14px; height: 14px; font-size: .62rem; font-weight: 750; }
+.key.cluster { border: 1px solid white; box-shadow: 2px -2px 0 0 #4975b4; }
 .marker {
-  display: grid; place-items: center; border: 2px solid var(--paper); color: white;
+  border: 2px solid var(--paper);
   box-shadow: 0 1px 5px #12233c5c; font-size: .77rem; font-weight: 750; line-height: 1;
 }
-.marker.approx::after { content: ""; background: var(--cobalt); width: 7px; height: 7px; border-radius: 50%; }
-.marker.cluster { border-radius: 6px; background: var(--cobalt); font-size: .86rem; }
+.marker.cluster { box-shadow: 5px -5px 0 -1px #4975b4, 5px -5px 0 1px white, 0 1px 5px #12233c5c; font-size: .86rem; }
 .marker.selected { outline: 3px solid var(--ink); outline-offset: 2px; }
 .location-sheet {
   position: absolute; z-index: 12; left: 14px; bottom: 32px;
@@ -116,8 +126,7 @@ button { cursor: pointer; color: inherit; }
   display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: start; gap: 10px;
   padding: 12px;
 }
-.sheet-symbol { width: 34px; height: 34px; display: grid; place-items: center; color: white; font-weight: 750; }
-.sheet-symbol.approx { color: var(--cobalt); }
+.sheet-symbol { width: 34px; height: 34px; font-weight: 750; }
 .sheet-content h2 { font-size: 1.12rem; overflow-wrap: anywhere; }
 .sheet-content p, .sheet-content a { font-size: .86rem; }
 .sheet-kind { font-weight: 650; color: var(--muted); }

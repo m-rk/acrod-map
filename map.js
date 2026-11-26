@@ -1,21 +1,6 @@
 "use strict";
 
-const councils = {
-  perth: {
-    name: "Perth",
-    source: "https://catalogue.data.wa.gov.au/dataset/perth-parking-bays-restrictions",
-    facility: "https://experience.arcgis.com/experience/b961bb1f42b8489eac34e41abf4df2ed",
-  },
-  fremantle: {
-    name: "Fremantle",
-    source: "https://www.arcgis.com/home/item.html?id=580c96bcae66468ea6d7ad55a85def4d",
-    approximate: "https://www.fremantle.wa.gov.au/document/acrod-car-park-locations/",
-  },
-  vincent: {
-    name: "Vincent",
-    source: "https://vincent.pozi.com/#/map[public]/x[115.85414]/y[-31.93136]/z[14]/filter[ac]/layers[acrodparkingbaysignage]/tab[layers]/",
-  },
-};
+const councils = { perth: "Perth", fremantle: "Fremantle", vincent: "Vincent" };
 const kinds = { bay: "Individual bay", approx: "Approximate location", carpark: "Car park" };
 const closestZoom = 19;
 const nearbyLimitMetres = 25000;
@@ -70,7 +55,9 @@ const tileStatus = document.querySelector("#tile-status");
 const tiles = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
   maxZoom: closestZoom,
   attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>',
-}).addTo(map);
+});
+// Show the basemap promptly even if the parking datasets are slow.
+const tileStartup = setTimeout(() => tiles.addTo(map), 500);
 let tileLoads = 0;
 tiles.on("loading", () => { tileLoads = 0; });
 tiles.on("tileload", () => { tileLoads += 1; });
@@ -104,7 +91,7 @@ const sheetKind = document.querySelector("#location-kind");
 const sheetSymbol = document.querySelector("#location-symbol");
 const sheetNote = document.querySelector("#location-note");
 const sheetSource = document.querySelector("#location-source");
-const locations = window.parkingLocations;
+const locations = [];
 let council = "all";
 let matching = [];
 let visible = [];
@@ -167,7 +154,7 @@ function focusPoint(point, zoom) {
 function marker(point, kind, label, content) {
   const size = kind === "cluster" ? 36 : 28;
   const icon = L.divIcon({
-    className: "marker " + kind,
+    className: "marker parking-symbol " + kind,
     html: content || "",
     iconSize: [size, size],
   });
@@ -210,7 +197,7 @@ function drawMap() {
       const centre = L.latLngBounds(group.map(location => location.point)).getCenter();
       const councilId = group[0].council;
       if (isCouncilOverview()) {
-        marker(centre, "cluster", councils[councilId].name + ", " + group.length + " mapped locations. Show council.", group.length)
+        marker(centre, "cluster", councils[councilId] + ", " + group.length + " mapped locations. Show council.", group.length)
           .on("click", () => selectCouncil(councilId));
       } else {
         marker(centre, "cluster", group.length + " mapped locations. Zoom in.", group.length)
@@ -233,21 +220,22 @@ function drawMap() {
 
 function showLocation(location, mapPin) {
   const fromList = !mapPin;
-  returnFocus = mapPin || results.querySelector('[data-location="' + location.id + '"]');
+  returnFocus = mapPin || results.querySelector('[data-location="' + CSS.escape(location.id) + '"]');
   selected = location.id;
   setResultsOpen(false);
 
   sheetName.textContent = location.name;
-  sheetSymbol.className = "sheet-symbol " + location.kind;
-  sheetSymbol.textContent = location.kind === "carpark" ? "P" : "♿︎";
-  const metadata = ["City of " + councils[location.council].name];
-  if (location.suburb && location.suburb !== councils[location.council].name) metadata.push(location.suburb);
+  sheetSymbol.className = "sheet-symbol parking-symbol " + location.kind;
+  sheetSymbol.textContent = location.kind === "carpark" ? "P" : "";
+  const councilName = councils[location.council];
+  const metadata = ["City of " + councilName];
+  if (location.suburb && location.suburb !== councilName) metadata.push(location.suburb);
   metadata.push(...locationDetails(location));
   sheetKind.textContent = metadata.join(" · ");
   sheetNote.textContent = location.note || "";
   sheetNote.hidden = !location.note;
-  const sources = councils[location.council];
-  sheetSource.href = { carpark: sources.facility, approx: sources.approximate }[location.kind] || sources.source;
+  sheetSource.hidden = !location.sourceUrl;
+  if (location.sourceUrl) sheetSource.href = location.sourceUrl;
   sheet.hidden = false;
   if (fromList) {
     focusPoint(location.point, location.kind === "bay" ? closestZoom : 17);
@@ -258,7 +246,7 @@ function showLocation(location, mapPin) {
   }
   drawMap();
   results.querySelector('[aria-current="true"]')?.removeAttribute("aria-current");
-  results.querySelector('[data-location="' + location.id + '"]')?.setAttribute("aria-current", "true");
+  results.querySelector('[data-location="' + CSS.escape(location.id) + '"]')?.setAttribute("aria-current", "true");
   sheetName.focus({ preventScroll: true });
 }
 
@@ -270,7 +258,7 @@ function closeLocation(restoreFocus = false) {
   selectedMarker?.classList.remove("selected");
   results.querySelector('[aria-current="true"]')?.removeAttribute("aria-current");
   if (restoreFocus) {
-    const replacement = previous && results.querySelector('[data-location="' + previous + '"]');
+    const replacement = previous && results.querySelector('[data-location="' + CSS.escape(previous) + '"]');
     const markerReplacement = returnFocus?.classList.contains("marker") ? selectedMarker : null;
     const target = [returnFocus, markerReplacement, replacement].find(button => button?.isConnected && button.getClientRects().length)
       || resultsToggle;
@@ -282,9 +270,10 @@ function closeLocation(restoreFocus = false) {
 function filterLocations() {
   const terms = search.value.toLowerCase().trim().split(/\s+/).filter(Boolean);
   matching = locations.filter(location => {
-    const haystack = [location.name, location.suburb, location.reference, location.note, councils[location.council].name].join(" ").toLowerCase();
+    const haystack = [location.name, location.suburb, location.reference, location.note, councils[location.council]].join(" ").toLowerCase();
     return (council === "all" || location.council === council) && terms.every(term => haystack.includes(term));
   });
+  if (browseView) return;
   closeLocation();
   if (terms.length && !matching.length) setResultsOpen(true);
   showLocateStatus("");
@@ -333,9 +322,9 @@ function renderResults() {
     button.dataset.location = location.id;
     if (location.id === selected) button.setAttribute("aria-current", "true");
     const details = element("span");
-    const metadata = [location.suburb || councils[location.council].name, ...locationDetails(location)];
+    const metadata = [location.suburb || councils[location.council], ...locationDetails(location)];
     details.append(element("strong", location.name), element("small", metadata.join(" · ")));
-    const key = element("i", "", "key " + location.kind);
+    const key = element("i", location.kind === "carpark" ? "P" : "", "key parking-symbol " + location.kind);
     key.setAttribute("aria-hidden", "true");
     const chevron = element("span", "›", "chevron");
     chevron.setAttribute("aria-hidden", "true");
@@ -345,6 +334,55 @@ function renderResults() {
     results.append(row);
   }
   results.scrollTop = 0;
+}
+
+async function loadCouncilLocations(area) {
+  const response = await fetch("sources/" + area + "/parking.geojson");
+  if (!response.ok) throw new Error("Could not load " + area + " parking data.");
+  const collection = await response.json();
+  if (collection.type !== "FeatureCollection" || !Array.isArray(collection.features)) {
+    throw new Error("Expected a GeoJSON FeatureCollection in " + area + ".");
+  }
+  const ids = new Set();
+  return collection.features.map(({ id, geometry, properties }) => {
+    const { marker_coordinates, source_url, ...details } = properties;
+    const isPoint = geometry.type === "Point";
+    const coords = isPoint ? geometry.coordinates : marker_coordinates;
+    const [longitude, latitude] = coords || [];
+    if (typeof id !== "string" || !id.startsWith(area + "-") || ids.has(id)
+        || details.council !== area || !Object.hasOwn(kinds, details.kind) || typeof details.name !== "string"
+        || !Number.isFinite(longitude) || Math.abs(longitude) > 180
+        || !Number.isFinite(latitude) || Math.abs(latitude) > 90
+        || (!isPoint && !["Polygon", "MultiPolygon"].includes(geometry.type))) {
+      throw new Error("Invalid parking location in " + area + ".");
+    }
+    ids.add(id);
+    const sourceUrl = typeof source_url === "string" && /^https:\/\//i.test(source_url) ? source_url : "";
+    return { ...details, id, point: [latitude, longitude], geometry: isPoint ? null : geometry, sourceUrl };
+  });
+}
+
+async function loadLocations() {
+  const areas = Object.keys(councils);
+  const outcomes = await Promise.allSettled(areas.map(loadCouncilLocations));
+  const unavailable = [];
+  for (const [index, outcome] of outcomes.entries()) {
+    if (outcome.status === "fulfilled") {
+      for (const location of outcome.value) locations.push(location);
+    } else {
+      unavailable.push(councils[areas[index]]);
+    }
+  }
+  if (unavailable.length) {
+    const status = document.querySelector("#data-status");
+    status.textContent = "Couldn’t load parking data for " + unavailable.join(", ") + ". Try reloading.";
+    status.hidden = false;
+  }
+  filterLocations();
+  clearTimeout(tileStartup);
+  tiles.addTo(map);
+  const permission = await navigator.permissions?.query({ name: "geolocation" }).catch(() => null);
+  if (autoLocate && permission?.state === "granted") useLocation(true);
 }
 
 function showLocateStatus(text) {
@@ -360,7 +398,8 @@ function useLocation(onLoad = false) {
   const request = ++locationRequest;
   locateButton.disabled = true;
   if (!onLoad) showLocateStatus("Finding your location…");
-  navigator.geolocation.getCurrentPosition(({ coords }) => {
+  navigator.geolocation.getCurrentPosition(async ({ coords }) => {
+    if (!browseView) await parkingData;
     if (request !== locationRequest) return;
     locateButton.disabled = false;
     if (onLoad && !autoLocate) return;
@@ -502,10 +541,7 @@ controlsObserver.observe(explorer);
 controlsObserver.observe(mapTop);
 map.on("moveend", refreshMap);
 map.on("dragstart", () => showLocateStatus(""));
-filterLocations();
 for (const event of ["pointerdown", "keydown"]) {
   document.addEventListener(event, () => { autoLocate = false; }, { once: true, capture: true });
 }
-navigator.permissions?.query({ name: "geolocation" }).then(permission => {
-  if (autoLocate && permission.state === "granted") useLocation(true);
-}).catch(() => {});
+const parkingData = loadLocations();
