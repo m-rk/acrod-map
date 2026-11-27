@@ -1,11 +1,7 @@
 "use strict";
 
-const councils = {
-  perth: { name: "Perth", authority: "City of Perth" },
-  fremantle: { name: "Fremantle", authority: "City of Fremantle" },
-  vincent: { name: "Vincent", authority: "City of Vincent" },
-  "victoria-park": { name: "Victoria Park", authority: "Town of Victoria Park" },
-};
+const councils = Object.fromEntries([...document.querySelectorAll("[data-council]:not([data-council='all'])")]
+  .map(button => [button.dataset.council, { name: button.textContent, authority: button.dataset.authority || button.textContent }]));
 const kinds = { bay: "Individual bay", approx: "Approximate location", carpark: "Car park" };
 const closestZoom = 19;
 const nearbyLimitMetres = 25000;
@@ -363,7 +359,10 @@ async function loadCouncilLocations(area) {
   const timeout = setTimeout(() => controller.abort(), 8000);
   let collection;
   try {
-    const response = await fetch("sources/" + area + "/parking.geojson", { signal: controller.signal });
+    const version = mapCanvas.dataset.version;
+    const query = version ? "?v=" + encodeURIComponent(version) : "";
+    const path = "sources/" + encodeURIComponent(area) + "/parking.geojson" + query;
+    const response = await fetch(path, { signal: controller.signal });
     if (!response.ok) throw new Error("Could not load " + area + " parking data.");
     collection = await response.json();
   } finally {
