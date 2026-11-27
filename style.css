@@ -28,7 +28,7 @@ button { cursor: pointer; color: inherit; }
 .ui-icon { width: 19px; height: 19px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .map-top {
   position: absolute; z-index: 20; top: 32px; left: 24px;
-  width: min(460px, calc(100% - 48px));
+  width: min(580px, calc(100% - 48px));
 }
 .toolbar, .location-sheet, .legend {
   background: var(--paper); border: 1px solid var(--line); border-radius: 10px;
@@ -215,7 +215,7 @@ dialog p { margin-top: 12px; }
 .coverage { padding: 27px 0 0; scroll-margin: 15px; }
 .coverage h2 { font-size: 1.3rem; }
 .coverage p { color: var(--muted); margin-top: 6px; max-width: 76ch; }
-.source-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 17px; }
+.source-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 17px; }
 .source-grid article { border-top: 1px solid var(--line); padding-top: 12px; }
 .source-grid h3 { font-size: 1rem; }
 .source-grid p { font-size: .9rem; margin-bottom: 7px; }

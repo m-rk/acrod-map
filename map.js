@@ -1,6 +1,11 @@
 "use strict";
 
-const councils = { perth: "Perth", fremantle: "Fremantle", vincent: "Vincent" };
+const councils = {
+  perth: { name: "Perth", authority: "City of Perth" },
+  fremantle: { name: "Fremantle", authority: "City of Fremantle" },
+  vincent: { name: "Vincent", authority: "City of Vincent" },
+  "victoria-park": { name: "Victoria Park", authority: "Town of Victoria Park" },
+};
 const kinds = { bay: "Individual bay", approx: "Approximate location", carpark: "Car park" };
 const closestZoom = 19;
 const nearbyLimitMetres = 25000;
@@ -210,7 +215,7 @@ function drawMap() {
       const centre = L.latLngBounds(group.map(location => location.point)).getCenter();
       const councilId = group[0].council;
       if (isCouncilOverview()) {
-        marker(centre, "cluster", councils[councilId] + ", " + group.length + " mapped locations. Show council.", group.length)
+        marker(centre, "cluster", councils[councilId].name + ", " + group.length + " mapped locations. Show council.", group.length)
           .on("click", () => selectCouncil(councilId));
       } else {
         marker(centre, "cluster", group.length + " mapped locations. Zoom in.", group.length)
@@ -240,9 +245,9 @@ function showLocation(location, mapPin) {
   sheetName.textContent = location.name;
   sheetSymbol.className = "sheet-symbol parking-symbol " + location.kind;
   sheetSymbol.textContent = location.kind === "carpark" ? "P" : "";
-  const councilName = councils[location.council];
-  const metadata = ["City of " + councilName];
-  if (location.suburb && location.suburb !== councilName) metadata.push(location.suburb);
+  const area = councils[location.council];
+  const metadata = [area.authority];
+  if (location.suburb && location.suburb !== area.name) metadata.push(location.suburb);
   metadata.push(...locationDetails(location));
   sheetKind.textContent = metadata.join(" · ");
   sheetNote.textContent = location.note || "";
@@ -283,7 +288,7 @@ function closeLocation(restoreFocus = false) {
 function filterLocations({ refit = true } = {}) {
   const terms = search.value.toLowerCase().trim().split(/\s+/).filter(Boolean);
   matching = locations.filter(location => {
-    const haystack = [location.name, location.suburb, location.reference, location.note, councils[location.council]].join(" ").toLowerCase();
+    const haystack = [location.name, location.suburb, location.reference, location.note, councils[location.council].name].join(" ").toLowerCase();
     return (council === "all" || location.council === council) && terms.every(term => haystack.includes(term));
   });
   if (browseView) return;
@@ -339,7 +344,7 @@ function renderResults() {
     button.dataset.location = location.id;
     if (location.id === selected) button.setAttribute("aria-current", "true");
     const details = element("span");
-    const metadata = [location.suburb || councils[location.council], ...locationDetails(location)];
+    const metadata = [location.suburb || councils[location.council].name, ...locationDetails(location)];
     details.append(element("strong", location.name), element("small", metadata.join(" · ")));
     const key = element("i", location.kind === "carpark" ? "P" : "", "key parking-symbol " + location.kind);
     key.setAttribute("aria-hidden", "true");
@@ -397,7 +402,7 @@ async function loadLocations() {
     }
     filterLocations({ refit: false });
   }));
-  const unavailable = areas.filter((_, index) => outcomes[index].status === "rejected").map(area => councils[area]);
+  const unavailable = areas.filter((_, index) => outcomes[index].status === "rejected").map(area => councils[area].name);
   const status = document.querySelector("#data-status");
   if (unavailable.length && status) {
     status.textContent = "Couldn’t load parking data for " + unavailable.join(", ") + ". Try reloading.";
@@ -514,6 +519,7 @@ function selectCouncil(value) {
   closeContribution();
   council = value;
   for (const button of buttons) button.setAttribute("aria-pressed", String(button.dataset.council === council));
+  buttons.find(button => button.dataset.council === council)?.scrollIntoView({ block: "nearest", inline: "nearest" });
   filterLocations();
 }
 

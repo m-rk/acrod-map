@@ -16,20 +16,22 @@ Files in `sources/` are reviewed before they’re added to the public map.
 | City of Perth | [parking.geojson](perth/parking.geojson) |
 | City of Fremantle | [parking.geojson](fremantle/parking.geojson) |
 | City of Vincent | [parking.geojson](vincent/parking.geojson) |
+| Town of Victoria Park | [parking.geojson](victoria-park/parking.geojson) |
 
-The map reads `sources/<area>/parking.geojson` for each configured council. To add an area to a fork, add its slug and display name in [map.js](../map.js) and a council filter in [index.html](../index.html).
+The map reads `sources/<area>/parking.geojson` for each configured council. To add an area to a fork, add its slug, display name and authority name in [map.js](../map.js) and a council filter in [index.html](../index.html).
 
 Each feature has a stable string `id` beginning with its area slug and a hyphen. Its properties include `council` (the area slug), `name`, `kind` (`bay`, `approx` or `carpark`), and the council’s HTTPS `source_url`. The files preserve notes, source references, suburbs, record IDs, use and bay counts where available. Point features use their geometry as the pin. Polygon features preserve the source shape and store the pin in `properties.marker_coordinates` in `[longitude, latitude]` order.
 
 ## Data provenance
 
-Snapshot retrieved 26 November 2026. Counts below describe mapped records or locations. Signs and bay markings apply on arrival. The map has no occupancy data.
+The Perth, Fremantle and Vincent snapshots were retrieved on 26 November 2026. Counts describe mapped records or locations. Signs and bay markings apply on arrival. The map has no occupancy data.
 
 | Council | Mapped locations | Method |
 | --- | ---: | --- |
 | Perth | 101 on-street locations and 30 car parks | Used the ArcGIS web map's ACROD filter on the WA catalogue's parking restrictions layer. Of 102 matching restriction records, two had the same polygon. Both source IDs and distinct descriptions are retained together. Pins show polygon centres. Two records are marked pick-up or set-down only. The car park layer contributes facility-level points with a positive ACROD count. |
 | Fremantle | 254 individual bay points and 13 approximate CBD locations | The council's GIS layer, last edited in March 2021, supplies individual bay coordinates. The 2026 CBD PDF contributes approximate symbols with no GIS point within 60 metres of the projected location. An affine fit to 14 OpenStreetMap street intersections registered the PDF. Leave-one-out checks across these controls gave differences up to 24 metres. Printed symbols may represent several bays or a car park. |
 | Vincent | 130 individual bay signage points | Used the WGS84 point geometry from the ACROD Parking Bay Signage layer loaded by the council's public Pozi map. Points locate the mapped signage. The snapshot includes car park names where supplied by that layer. |
+| Victoria Park | 93 individual bay points | Used the Town’s ACROD bay point layer, retrieved on 27 November 2026. [Source and attribution](victoria-park/README.md) |
 
 - **Perth** [WA data catalogue, CC BY 4.0](https://catalogue.data.wa.gov.au/dataset/perth-parking-bays-restrictions) · [Council ArcGIS map](https://experience.arcgis.com/experience/b961bb1f42b8489eac34e41abf4df2ed) · [Restriction layer](https://services7.arcgis.com/v8XBa2naYNQGOjlG/arcgis/rest/services/PS_AST_PARKINGBAYSEXPLODED_PV/FeatureServer/0) · [Car park layer](https://services7.arcgis.com/v8XBa2naYNQGOjlG/arcgis/rest/services/PS_OTH_CARPARKCENTROID_PV/FeatureServer/0).
 - **Fremantle** [Council parking page](https://www.fremantle.wa.gov.au/services-and-support/parking-and-transport/parking-locations/) · [Accessible Freo CBD map (PDF)](https://www.fremantle.wa.gov.au/document/acrod-car-park-locations/) · [Council GIS layer](https://www.arcgis.com/home/item.html?id=580c96bcae66468ea6d7ad55a85def4d).
