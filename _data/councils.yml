@@ -1,0 +1,38 @@
+- slug: perth
+  name: Perth
+  authority: City of Perth
+  coverage: Individual on-street locations use deduplicated council bay polygons, including two designated for pick-up or set-down only. City car park pins show a facility location. Each car park may contain multiple bays.
+  links:
+    - label: WA data catalogue
+      url: https://catalogue.data.wa.gov.au/dataset/perth-parking-bays-restrictions
+    - label: Council parking map
+      url: https://experience.arcgis.com/experience/b961bb1f42b8489eac34e41abf4df2ed
+- slug: fremantle
+  name: Fremantle
+  authority: City of Fremantle
+  coverage: Individual bay pins use the council’s 2021 GIS layer. Approximate pins mark CBD map symbols with no nearby match in that layer. One symbol may cover several bays.
+  links:
+    - label: Council parking page
+      url: https://www.fremantle.wa.gov.au/services-and-support/parking-and-transport/parking-locations/
+    - label: Accessible Freo map (PDF)
+      url: https://www.fremantle.wa.gov.au/document/acrod-car-park-locations/
+    - label: Council GIS layer
+      url: https://www.arcgis.com/home/item.html?id=580c96bcae66468ea6d7ad55a85def4d
+- slug: vincent
+  name: Vincent
+  authority: City of Vincent
+  coverage: Individual bay pins mark the positions in the council’s ACROD signage layer.
+  links:
+    - label: Council accessible parking page
+      url: https://www.vincent.wa.gov.au/our-neighbourhood/parking/accessible-parking-acrod.aspx
+    - label: Council online map
+      url: 'https://vincent.pozi.com/#/map[public]/x[115.85414]/y[-31.93136]/z[14]/filter[ac]/layers[acrodparkingbaysignage]/tab[layers]/'
+- slug: victoria-park
+  name: Victoria Park
+  authority: Town of Victoria Park
+  coverage: The council’s ACROD layer supplied 93 bay points, including 41 within the ABS East Victoria Park suburb boundary.
+  links:
+    - label: Council online maps
+      url: https://www.victoriapark.wa.gov.au/about/town/places-and-maps/online-maps.aspx
+    - label: Data source and attribution
+      url: https://github.com/m-rk/acrod-map/blob/main/sources/victoria-park/README.md
