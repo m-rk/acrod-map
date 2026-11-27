@@ -13,7 +13,7 @@ Files in `sources/` are reviewed before they’re added to the public map.
 
 The current downloads and sources are listed on the [coverage page](https://m-rk.github.io/acrod-map/coverage.html).
 
-GitHub Pages builds the filters, coverage cards, and search and social metadata from the council data file. The build also versions the asset and data URLs. To preview a branch locally with Ruby and Bundler, run `bundle install` and `bundle exec jekyll serve --baseurl ''`. [GitHub Pages local preview guide](https://docs.github.com/en/pages/setting-up-a-github-pages-site-with-jekyll/testing-your-github-pages-site-locally-with-jekyll)
+GitHub Pages builds the filters, coverage cards, and search and social metadata from the council data file. The build also versions the asset and data URLs. To preview a branch locally with Ruby 3.3 and Bundler, run `bundle install` and `bundle exec jekyll serve --baseurl ''`. [GitHub Pages local preview guide](https://docs.github.com/en/pages/setting-up-a-github-pages-site-with-jekyll/testing-your-github-pages-site-locally-with-jekyll)
 
 Each feature has a stable string `id` beginning with its area slug and a hyphen. Its properties include `council` (the area slug), `name`, `kind` (`bay`, `approx` or `carpark`), and an HTTPS `source_url` for the original source. The files preserve notes, source references, suburbs, record IDs, use and bay counts where available. Point features use their geometry as the pin. Polygon features preserve the source shape and store the pin in `properties.marker_coordinates` in `[longitude, latitude]` order.
 
