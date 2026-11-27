@@ -1,7 +1,11 @@
 "use strict";
 
 const councils = Object.fromEntries([...document.querySelectorAll("[data-council]:not([data-council='all'])")]
-  .map(button => [button.dataset.council, { name: button.textContent, authority: button.dataset.authority || button.textContent }]));
+  .map(button => [button.dataset.council, {
+    name: button.textContent,
+    authority: button.dataset.authority || button.textContent,
+    files: (button.dataset.files ?? "parking.geojson").split(" ").filter(Boolean),
+  }]));
 const kinds = { bay: "Individual bay", approx: "Approximate location", carpark: "Car park" };
 const closestZoom = 19;
 const nearbyLimitMetres = 25000;
@@ -104,7 +108,9 @@ const sheetName = document.querySelector("#location-name");
 const sheetKind = document.querySelector("#location-kind");
 const sheetSymbol = document.querySelector("#location-symbol");
 const sheetNote = document.querySelector("#location-note");
+const sheetSources = document.querySelector("#location-sources");
 const sheetSource = document.querySelector("#location-source");
+const sheetExtraSources = document.querySelector("#location-extra-sources");
 const locations = [];
 let council = "all";
 let matching = [];
@@ -232,12 +238,7 @@ function drawMap() {
   }
 }
 
-function showLocation(location, mapPin) {
-  const fromList = !mapPin;
-  returnFocus = mapPin || results.querySelector('[data-location="' + CSS.escape(location.id) + '"]');
-  selected = location.id;
-  setResultsOpen(false);
-
+function renderLocationSheet(location) {
   sheetName.textContent = location.name;
   sheetSymbol.className = "sheet-symbol parking-symbol " + location.kind;
   sheetSymbol.textContent = location.kind === "carpark" ? "P" : "";
@@ -248,8 +249,29 @@ function showLocation(location, mapPin) {
   sheetKind.textContent = metadata.join(" · ");
   sheetNote.textContent = location.note || "";
   sheetNote.hidden = !location.note;
-  sheetSource.hidden = !location.sourceUrl;
-  if (location.sourceUrl) sheetSource.href = location.sourceUrl;
+  const [primary, ...extra] = location.sources;
+  sheetSource.hidden = !primary;
+  sheetSource.textContent = primary?.label || "";
+  if (primary?.url) sheetSource.href = primary.url;
+  else sheetSource.removeAttribute("href");
+  if (sheetSources) {
+    sheetSources.hidden = !primary;
+    sheetExtraSources.replaceChildren();
+    for (const { label, url } of extra) {
+      const source = element(url ? "a" : "span", label);
+      if (url) source.href = url;
+      sheetExtraSources.append(" · ", source);
+    }
+  }
+}
+
+function showLocation(location, mapPin) {
+  const fromList = !mapPin;
+  returnFocus = mapPin || results.querySelector('[data-location="' + CSS.escape(location.id) + '"]');
+  selected = location.id;
+  setResultsOpen(false);
+
+  renderLocationSheet(location);
   sheet.hidden = false;
   if (fromList) {
     focusPoint(location.point, location.kind === "bay" ? closestZoom : 17);
@@ -354,14 +376,14 @@ function renderResults() {
   results.scrollTop = 0;
 }
 
-async function loadCouncilLocations(area) {
+async function loadCouncilLocations(area, file) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 8000);
   let collection;
   try {
     const version = mapCanvas.dataset.version;
     const query = version ? "?v=" + encodeURIComponent(version) : "";
-    const path = "sources/" + encodeURIComponent(area) + "/parking.geojson" + query;
+    const path = "sources/" + encodeURIComponent(area) + "/" + encodeURIComponent(file) + query;
     const response = await fetch(path, { signal: controller.signal });
     if (!response.ok) throw new Error("Could not load " + area + " parking data.");
     collection = await response.json();
@@ -373,7 +395,7 @@ async function loadCouncilLocations(area) {
   }
   const ids = new Set();
   return collection.features.map(({ id, geometry, properties }) => {
-    const { marker_coordinates, source_url, ...details } = properties;
+    const { marker_coordinates, source_url, source_name, ...details } = properties;
     const isPoint = geometry.type === "Point";
     const coords = isPoint ? geometry.coordinates : marker_coordinates;
     const [longitude, latitude] = coords || [];
@@ -385,26 +407,73 @@ async function loadCouncilLocations(area) {
       throw new Error("Invalid parking location in " + area + ".");
     }
     ids.add(id);
-    const sourceUrl = typeof source_url === "string" && /^https:\/\//i.test(source_url) ? source_url : "";
-    return { ...details, id, point: [latitude, longitude], geometry: isPoint ? null : geometry, sourceUrl };
+    const osm = file === "parking.osm.geojson";
+    const url = typeof source_url === "string" && /^https:\/\//i.test(source_url) ? source_url : "";
+    const osmObject = /^https:\/\/(?:www\.)?openstreetmap\.org\/(?:node|way|relation)\/\d+\/?$/i.test(url);
+    const sourceName = osm || osmObject
+      ? "OpenStreetMap"
+      : typeof source_name === "string" ? source_name.trim() : "";
+    const sourceLink = osm && !osmObject ? "" : url;
+    const sources = sourceLink || sourceName ? [{ label: sourceName || "View source", url: sourceLink }] : [];
+    return { ...details, id: osm ? "osm:" + id : id, point: [latitude, longitude], geometry: isPoint ? null : geometry, sources };
   });
+}
+
+function combineLocations(provided, osm) {
+  if (!provided.length || !osm.length) return provided.concat(osm);
+  const indexBays = records => {
+    const bays = new Map();
+    for (const location of records) {
+      if (location.kind !== "bay") continue;
+      const key = location.point.join(",");
+      bays.set(key, bays.has(key) ? null : location);
+    }
+    return bays;
+  };
+  const providedBays = indexBays(provided);
+  const osmBays = indexBays(osm);
+  const additional = osm.filter(location => {
+    const key = location.point.join(",");
+    const existing = providedBays.get(key);
+    if (!existing || osmBays.get(key) !== location) return true;
+    existing.osmId = location.id;
+    for (const source of location.sources) {
+      if (!existing.sources.some(current => current.url === source.url && (source.url || current.label === source.label))) {
+        existing.sources.push(source);
+      }
+    }
+    return false;
+  });
+  return provided.concat(additional);
 }
 
 async function loadLocations() {
   const areas = Object.keys(councils);
   const loaded = new Map();
-  const outcomes = await Promise.allSettled(areas.map(async area => {
-    loaded.set(area, await loadCouncilLocations(area));
-    locations.length = 0;
-    for (const key of areas) {
-      for (const location of loaded.get(key) || []) locations.push(location);
-    }
-    filterLocations({ refit: false });
+  const outcomes = await Promise.all(areas.map(async area => {
+    const files = councils[area].files;
+    const records = new Map();
+    const results = await Promise.allSettled(files.map(async file => {
+      records.set(file, await loadCouncilLocations(area, file));
+      const combined = combineLocations(records.get("parking.geojson") || [], records.get("parking.osm.geojson") || []);
+      loaded.set(area, combined);
+      locations.length = 0;
+      for (const key of areas) {
+        for (const location of loaded.get(key) || []) locations.push(location);
+      }
+      const current = selected && combined.find(location => location.osmId && (location.id === selected || location.osmId === selected));
+      if (current) {
+        selected = current.id;
+        renderLocationSheet(current);
+      }
+      filterLocations({ refit: false });
+    }));
+    return files.length && results.every(result => result.status === "fulfilled");
   }));
-  const unavailable = areas.filter((_, index) => outcomes[index].status === "rejected").map(area => councils[area].name);
+  const unavailable = areas.filter((_, index) => !outcomes[index]).map(area => councils[area].name);
   const status = document.querySelector("#data-status");
   if (unavailable.length && status) {
-    status.textContent = "Couldn’t load parking data for " + unavailable.join(", ") + ". Try reloading.";
+    status.textContent = "Couldn’t load all parking data for " + unavailable.join(", ") + ". Try reloading.";
     status.hidden = false;
   }
   filterLocations({ refit: !selected && (autoLocate || council !== "all" || search.value.trim() !== "") });
