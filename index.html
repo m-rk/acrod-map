@@ -4,6 +4,7 @@ layout: null
 {% assign build_version = site.github.build_revision %}
 {% unless build_version %}{% assign build_version = site.time | date: "%s" %}{% endunless %}
 {% capture council_names %}{% for item in site.data.councils %}{% unless forloop.first %}{% if forloop.last %} and {% else %}, {% endif %}{% endunless %}{{ item.name }}{% endfor %}{% endcapture %}
+{% assign static_paths = site.static_files | map: "path" %}
 <!doctype html>
 <html lang="en-AU" prefix="og: https://ogp.me/ns#">
 <head>
@@ -52,7 +53,10 @@ layout: null
               <div class="filters" role="group" aria-label="Filter by council">
                 <button type="button" data-council="all" aria-label="All councils" aria-pressed="true">All</button>
                 {% for item in site.data.councils %}
-                <button type="button" data-council="{{ item.slug | escape }}" data-authority="{{ item.authority | escape }}" aria-pressed="false">{{ item.name | escape }}</button>
+                {% assign data_dir = item.slug | prepend: "/sources/" %}
+                {% assign parking_path = data_dir | append: "/parking.geojson" %}
+                {% assign osm_path = data_dir | append: "/parking.osm.geojson" %}
+                <button type="button" data-council="{{ item.slug | escape }}" data-authority="{{ item.authority | escape }}" data-files="{% if static_paths contains parking_path %}parking.geojson{% endif %}{% if static_paths contains osm_path %} parking.osm.geojson{% endif %}" aria-pressed="false">{{ item.name | escape }}</button>
                 {% endfor %}
               </div>
             </div>
@@ -108,7 +112,7 @@ layout: null
             <h2 id="location-name" tabindex="-1"></h2>
             <p class="sheet-kind" id="location-kind"></p>
             <p id="location-note"></p>
-            <a id="location-source">View source</a>
+            <p id="location-sources"><a id="location-source" hidden>View source</a><span id="location-extra-sources"></span></p>
           </div>
           <button class="sheet-close" type="button" aria-label="Close location details"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-close"/></svg></button>
         </section>

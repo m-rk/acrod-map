@@ -3,6 +3,7 @@ layout: null
 ---
 {% assign build_version = site.github.build_revision %}
 {% unless build_version %}{% assign build_version = site.time | date: "%s" %}{% endunless %}
+{% assign static_paths = site.static_files | map: "path" %}
 <!doctype html>
 <html lang="en-AU">
 <head>
@@ -26,7 +27,13 @@ layout: null
           {% assign scheme = link.url | slice: 0, 8 %}
           {% if scheme == "https://" %}<a href="{{ link.url | escape }}">{{ link.label | escape }}</a>{% endif %}
           {% endfor %}
-          <a href="sources/{{ item.slug | url_encode }}/parking.geojson?v={{ build_version }}" download="{{ item.slug | escape }}-parking.geojson">Download GeoJSON</a>
+          {% assign data_dir = item.slug | prepend: "/sources/" %}
+          {% assign parking_path = data_dir | append: "/parking.geojson" %}
+          {% assign osm_path = data_dir | append: "/parking.osm.geojson" %}
+          {% if static_paths contains parking_path %}<a href="{{ parking_path | relative_url }}?v={{ build_version }}" download="{{ item.slug | escape }}-parking.geojson">Download GeoJSON</a>{% endif %}
+          {% if static_paths contains osm_path %}
+          <a href="{{ osm_path | relative_url }}?v={{ build_version }}" download="{{ item.slug | escape }}-parking.osm.geojson">Download OpenStreetMap GeoJSON</a>
+          {% endif %}
         </article>
         {% endfor %}
       </div>
