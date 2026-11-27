@@ -9,6 +9,8 @@ Use a pull request to suggest a new area or correct an existing dataset. Council
 
 Files in `sources/` are reviewed before they’re added to the public map.
 
+The Cockburn contribution shows the two files needed to add an area using OpenStreetMap data. [See the Cockburn pull request](https://github.com/m-rk/acrod-map/pull/2/files)
+
 The OpenStreetMap extract for an area goes in `sources/<area>/parking.osm.geojson`. Either parking file can be used on its own. When both are present, the map keeps the contributed bay and shows both source links if exactly one bay from each file shares the same pin coordinates. Keep OpenStreetMap attribution and the ODbL licence in the extract, and use each original OpenStreetMap object as its feature’s source link.
 
 ## Download data
