@@ -5,6 +5,7 @@ const councils = {
   fremantle: { name: "Fremantle", authority: "City of Fremantle" },
   vincent: { name: "Vincent", authority: "City of Vincent" },
   "victoria-park": { name: "Victoria Park", authority: "Town of Victoria Park" },
+  cockburn: { name: "Cockburn", authority: "City of Cockburn" },
 };
 const kinds = { bay: "Individual bay", approx: "Approximate location", carpark: "Car park" };
 const closestZoom = 19;
