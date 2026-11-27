@@ -2,7 +2,7 @@
 
 [**Open the live map**](https://m-rk.github.io/acrod-map/)
 
-Find designated accessible parking in the Cities of Perth, Fremantle and Vincent. Use the location icon in the search box to find mapped parking within 25 km, or search by street, suburb or landmark. Open **In this map view** for the list or select a marker.
+Find designated accessible parking across Perth, Fremantle, Vincent and the Town of Victoria Park. Use the location icon in the search box to find mapped parking within 25 km, or search by street, suburb or landmark. Open **In this map view** for the list or select a marker.
 
 ## Read the markers
 
