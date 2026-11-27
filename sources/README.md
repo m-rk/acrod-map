@@ -9,10 +9,6 @@ Use a pull request to suggest a new area or correct an existing dataset. Council
 
 Files in `sources/` are reviewed before they’re added to the public map.
 
-Open the [one-bay GeoJSON example](examples/perth-bay.geojson), select **Raw**, then copy and paste it into **Add your area**. It uses the mapped centre of a City of Perth restriction polygon and retains its source link and bay reference. [City of Perth dataset, CC BY 4.0](https://catalogue.data.wa.gov.au/dataset/perth-parking-bays-restrictions) · [Street and suburb sources](#location-labels)
-
-The Town of Victoria Park entry records the council dataset, its coverage and the status of redistribution. [Town of Victoria Park ACROD parking source](victoria-park/README.md)
-
 ## Download existing data
 
 | Area | GeoJSON |
