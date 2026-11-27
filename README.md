@@ -2,7 +2,7 @@
 
 [**Open the live map**](https://m-rk.github.io/acrod-map/)
 
-Find designated accessible parking across Perth, Fremantle, Vincent, Victoria Park and Cockburn. Use the location icon in the search box to find mapped parking within 25 km, or search by street, suburb or landmark. Open **In this map view** for the list or select a marker.
+Find designated accessible parking around Perth, Western Australia. Use the location icon in the search box to find mapped parking within 25 km, or search by street, suburb or landmark. Open **In this map view** for the list or select a marker.
 
 ## Read the markers
 
@@ -11,7 +11,7 @@ Find designated accessible parking across Perth, Fremantle, Vincent, Victoria Pa
 - **Dark square with a P** for a car park that has accessible bays.
 - **Stacked blue circles** for multiple locations. Select one to see the area or zoom in.
 
-The map shows selected council and OpenStreetMap records. Check signs and bay markings when you arrive.
+The map shows selected parking records and has no live availability data. Check signs and bay markings when you arrive.
 
 ![Desktop ACROD map with floating search, council filters and parking markers](screenshots/perth-map.png)
 

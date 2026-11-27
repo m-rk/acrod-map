@@ -1,0 +1,13 @@
+url: https://m-rk.github.io
+baseurl: /acrod-map
+include:
+  - vendor
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor/bundle
+  - vendor/cache
+  - vendor/gems
+  - vendor/ruby
+  - acrod-*.html

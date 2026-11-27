@@ -1,3 +1,8 @@
+---
+layout: null
+---
+{% assign build_version = site.github.build_revision %}
+{% unless build_version %}{% assign build_version = site.time | date: "%s" %}{% endunless %}
 <!doctype html>
 <html lang="en-AU">
 <head>
@@ -5,19 +10,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Coverage and sources | ACROD parking</title>
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon.png">
-  <link rel="stylesheet" href="style.css?v=291dfa60512c">
+  <link rel="stylesheet" href="style.css?v={{ build_version }}">
 </head>
 <body>
   <main class="coverage-page">
     <a href="index.html">← Back to map</a>
     <section class="coverage" id="coverage" aria-labelledby="coverage-title">
-      <div class="coverage-intro"><h2 id="coverage-title">Coverage &amp; sources</h2><p>This map shows selected council and OpenStreetMap records and has no live availability data. Street and landmark names give local context. Use the pin to locate the recorded position and check signs and bay markings on arrival.</p></div>
+      <div class="coverage-intro"><h2 id="coverage-title">Coverage &amp; sources</h2><p>This map shows selected parking records and has no live availability data. Street and landmark names give local context. Use the pin to locate the recorded position and check signs and bay markings on arrival.</p></div>
       <div class="source-grid">
-        <article><h3>City of Perth</h3><p>Individual on-street locations use deduplicated council bay polygons, including two designated for pick-up or set-down only. City car park pins show a facility location. Each car park may contain multiple bays.</p><a href="https://catalogue.data.wa.gov.au/dataset/perth-parking-bays-restrictions">WA data catalogue</a><a href="https://experience.arcgis.com/experience/b961bb1f42b8489eac34e41abf4df2ed">Council parking map</a><a href="sources/perth/parking.geojson" download="perth-parking.geojson">Download GeoJSON</a></article>
-        <article><h3>City of Fremantle</h3><p>Individual bay pins use the council’s 2021 GIS layer. Approximate pins mark CBD map symbols with no nearby match in that layer. One symbol may cover several bays.</p><a href="https://www.fremantle.wa.gov.au/services-and-support/parking-and-transport/parking-locations/">Council parking page</a><a href="https://www.fremantle.wa.gov.au/document/acrod-car-park-locations/">Accessible Freo map (PDF)</a><a href="https://www.arcgis.com/home/item.html?id=580c96bcae66468ea6d7ad55a85def4d">Council GIS layer</a><a href="sources/fremantle/parking.geojson" download="fremantle-parking.geojson">Download GeoJSON</a></article>
-        <article><h3>City of Vincent</h3><p>Individual bay pins mark the positions in the council’s ACROD signage layer.</p><a href="https://www.vincent.wa.gov.au/our-neighbourhood/parking/accessible-parking-acrod.aspx">Council accessible parking page</a><a href="https://vincent.pozi.com/#/map[public]/x[115.85414]/y[-31.93136]/z[14]/filter[ac]/layers[acrodparkingbaysignage]/tab[layers]/">Council online map</a><a href="sources/vincent/parking.geojson" download="vincent-parking.geojson">Download GeoJSON</a></article>
-        <article><h3>Town of Victoria Park</h3><p>The council’s ACROD layer supplied 93 bay points, including 41 within the ABS East Victoria Park suburb boundary.</p><a href="https://www.victoriapark.wa.gov.au/about/town/places-and-maps/online-maps.aspx">Council online maps</a><a href="https://github.com/m-rk/acrod-map/blob/main/sources/victoria-park/README.md">Data source and attribution</a><a href="sources/victoria-park/parking.geojson" download="victoria-park-parking.geojson">Download GeoJSON</a></article>
-        <article><h3>City of Cockburn</h3><p>OpenStreetMap contributors mapped 17 individual bays, nine locations for groups of bays and nine car parks. Coverage is partial.</p><a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors · ODbL</a><a href="sources/cockburn/parking.geojson" download="cockburn-parking.geojson">Download GeoJSON</a></article>
+        {% for item in site.data.councils %}
+        <article>
+          <h3>{{ item.authority | escape }}</h3>
+          <p>{{ item.coverage | escape }}</p>
+          {% for link in item.links %}
+          {% assign scheme = link.url | slice: 0, 8 %}
+          {% if scheme == "https://" %}<a href="{{ link.url | escape }}">{{ link.label | escape }}</a>{% endif %}
+          {% endfor %}
+          <a href="sources/{{ item.slug | url_encode }}/parking.geojson?v={{ build_version }}" download="{{ item.slug | escape }}-parking.geojson">Download GeoJSON</a>
+        </article>
+        {% endfor %}
       </div>
       <p>Location labels use the <a href="https://catalogue.data.wa.gov.au/dataset/mrwa-road-network">Main Roads WA Road Network</a>, <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a> and <a href="https://geo.abs.gov.au/arcgis/rest/services/ASGS2021/SAL/MapServer">ABS suburb areas</a>.</p>
     </section>
