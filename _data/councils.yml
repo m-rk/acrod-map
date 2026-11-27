@@ -36,3 +36,23 @@
       url: https://www.victoriapark.wa.gov.au/about/town/places-and-maps/online-maps.aspx
     - label: Data source and attribution
       url: https://github.com/m-rk/acrod-map/blob/main/sources/victoria-park/README.md
+- slug: cockburn
+  name: Cockburn
+  authority: City of Cockburn
+  coverage: >-
+    The Perth OpenStreetMap extract retrieved on 27 November 2026 supplied 35 locations with partial coverage.
+    It includes 17 individual bays, nine approximate locations for groups of bays or street-side parking, and nine car parks.
+    Car park counts come from OpenStreetMap and pins show the facility location. The customer-only location is labelled in its record.
+    The snapshot uses nodes and ways inside the ABS Cockburn boundary. It excludes a duplicate car park,
+    a car park with a capacity warning and private venues without clear visitor access.
+  links:
+    - label: © OpenStreetMap contributors
+      url: https://www.openstreetmap.org/copyright
+    - label: ODbL 1.0
+      url: https://opendatacommons.org/licenses/odbl/1-0/
+    - label: BBBike Perth extract
+      url: https://download.bbbike.org/osm/bbbike/Perth/
+    - label: ABS local government boundaries
+      url: https://digital.atlas.gov.au/maps/b6d25bb7f7a942f1bfa26c448c24b089_0/explore
+    - label: ABS suburb boundaries
+      url: https://geo.abs.gov.au/arcgis/rest/services/ASGS2021/SAL/MapServer
