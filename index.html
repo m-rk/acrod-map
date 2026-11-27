@@ -49,9 +49,9 @@ layout: null
           <p class="location-status" id="location-status" role="status" hidden></p>
           <p class="location-status" id="data-status" role="status" hidden></p>
           <div class="filter-row">
-            <div class="filter-strip">
-              <div class="filters" role="group" aria-label="Filter by council">
-                <button type="button" data-council="all" aria-label="All councils" aria-pressed="true">All</button>
+            <div class="filter-strip" role="group" aria-label="Filter by council">
+              <button type="button" data-council="all" aria-label="All councils" aria-pressed="true">All</button>
+              <div class="filters">
                 {% for item in site.data.councils %}
                 {% assign data_dir = item.slug | prepend: "/sources/" %}
                 {% assign parking_path = data_dir | append: "/parking.geojson" %}

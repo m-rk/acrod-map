@@ -49,22 +49,24 @@ button { cursor: pointer; color: inherit; }
 .footer { position: absolute; z-index: 15; bottom: 4px; left: 14px; padding: 2px 6px; background: var(--paper); border-radius: 4px; font-size: .76rem; }
 .map-app noscript { position: absolute; z-index: 25; bottom: 35px; left: 12px; padding: 10px; background: var(--paper); }
 .filter-row { display: flex; align-items: center; gap: 6px; min-width: 0; }
-.filter-strip { flex: 1; min-width: 0; mask-image: linear-gradient(to right, black calc(100% - 12px), transparent); }
+.filter-strip { display: flex; align-items: center; flex: 1; min-width: 0; padding-inline-start: 3px; }
 .filters {
-  display: flex; align-items: center; gap: 4px; padding: 3px 13px 3px 3px;
+  display: flex; align-items: center; flex: 1; min-width: 0; gap: 4px; padding: 3px 13px 3px 8px;
   overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: thin;
+  mask-image: linear-gradient(to right, transparent, black 8px, black calc(100% - 12px), transparent);
 }
-.filters button, #local-area { flex: none; white-space: nowrap; }
+.filter-strip button, #local-area { flex: none; white-space: nowrap; }
 .filters button { scroll-margin-inline: 12px; }
-.filters button:focus-visible { outline-offset: -3px; }
-.filters button[aria-pressed="true"]:focus-visible { outline-color: white; }
+.filter-strip button:focus-visible { outline-offset: -3px; }
+.filter-strip button[aria-pressed="true"]:focus-visible { outline-color: white; }
 #local-area[aria-expanded="true"] .ui-icon { transform: rotate(45deg); }
-.filters button {
+.filter-strip button {
   min-height: 44px; padding: 7px 9px; border: 1px solid transparent;
   border-radius: 5px; background: var(--paper); font-weight: 650; font-size: .88rem;
 }
-.filters button[aria-pressed="true"] { background: var(--cobalt); color: white; }
-.filters button:hover:not([aria-pressed="true"]), .result:hover { background: var(--tint); }
+.filter-strip > button { background: var(--tint); border-color: var(--line); }
+.filter-strip button[aria-pressed="true"] { background: var(--cobalt); color: white; }
+.filter-strip button:hover:not([aria-pressed="true"]), .result:hover { background: var(--tint); }
 .search {
   display: flex; align-items: center; gap: 8px; padding: 0 0 0 10px; min-height: 44px;
   width: 100%; border: 1px solid var(--line); border-radius: 5px;
@@ -98,8 +100,9 @@ button { cursor: pointer; color: inherit; }
 .legend .legend-toggle {
   position: absolute; top: 8px; right: 8px;
   width: var(--legend-toggle-size); height: var(--legend-toggle-size);
+  border: 1px solid var(--line); border-radius: 50%;
 }
-.legend-toggle .ui-icon { width: 15px; height: 15px; }
+.legend-toggle .ui-icon { width: 22.5px; height: 22.5px; }
 .legend-toggle[aria-expanded="false"] .ui-icon { transform: rotate(180deg); }
 .legend-items { display: grid; gap: 4px; padding: 0; margin: 0; list-style: none; }
 .legend-items li { display: grid; grid-template-columns: 36px auto; align-items: center; gap: 7px; }
@@ -231,7 +234,7 @@ dialog p { margin-top: 12px; }
   .masthead h1 { font-size: clamp(1rem, calc(5.5vw + 2px), 1.25rem); }
   .brand-icon { width: 46px; height: 46px; }
   .filters { gap: 2px; }
-  .filters button, #local-area { padding-inline: 6px; font-size: .8rem; }
+  .filter-strip button, #local-area { padding-inline: 6px; font-size: .8rem; }
   #local-area { gap: 4px; }
   #local-area .ui-icon { width: 16px; height: 16px; }
   .legend { left: 10px; right: auto; }
