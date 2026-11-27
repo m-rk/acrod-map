@@ -143,6 +143,7 @@ button { cursor: pointer; color: inherit; }
 .sheet-kind { font-weight: 650; color: var(--muted); }
 .sheet-content p + p { margin-top: 6px; }
 .sheet-content a { display: inline-block; margin-top: 6px; }
+#location-sources a { margin-top: 0; }
 .sheet-close {
   width: 44px; height: 44px; border: 1px solid var(--line); border-radius: 5px;
   color: var(--ink); background: white; display: grid; place-items: center;

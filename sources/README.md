@@ -4,10 +4,12 @@ Use a pull request to suggest a new area or correct an existing dataset. Council
 
 1. Export the data as a GeoJSON `FeatureCollection` in WGS 84. Coordinates go in `[longitude, latitude]` order. Use one feature per mapped bay, approximate location or car park. Give each feature a street, landmark or car park name where available. Keep official references and restrictions, and identify approximate and car park-level locations clearly. Omit records with unknown coordinates from the submission.
 2. Open the map, choose **Add your area**, and upload or paste the GeoJSON. Check the feature count and spot-check the pins against the source. [Open the parking map](https://m-rk.github.io/acrod-map/)
-3. Fork `m-rk/acrod-map` and create a branch. Add `sources/<area>/parking.geojson` and an entry in [the council data file](../_data/councils.yml). Use the same slug in both places, with lowercase letters, digits and hyphens. The slug `all` is reserved. The entry supplies the filter name, authority, coverage note, and source and licence links. [Fork the repository](https://github.com/m-rk/acrod-map/fork)
+3. Fork `m-rk/acrod-map` and create a branch. Add `sources/<area>/parking.geojson` or use `parking.osm.geojson` for OpenStreetMap data. Add the area to [the council data file](../_data/councils.yml). Use the same slug in both places, with lowercase letters, digits and hyphens. The slug `all` is reserved. The entry supplies the filter name, authority, coverage note, and source and licence links. [Fork the repository](https://github.com/m-rk/acrod-map/fork)
 4. Open a pull request from your branch to `m-rk/acrod-map` on `main`. Include the council or area, source URL, licence, date retrieved, what the points represent and any known gaps. For a correction, describe what changed. [GitHub’s guide to pull requests from forks](https://docs.github.com/en/pull-requests/how-tos/create-pull-requests/creating-a-pull-request-from-a-fork)
 
 Files in `sources/` are reviewed before they’re added to the public map.
+
+The OpenStreetMap extract for an area goes in `sources/<area>/parking.osm.geojson`. Either parking file can be used on its own. When both are present, the map keeps the contributed bay and shows both source links if exactly one bay from each file shares the same pin coordinates. Keep OpenStreetMap attribution and the ODbL licence in the extract, and use each original OpenStreetMap object as its feature’s source link.
 
 ## Download data
 
@@ -16,6 +18,8 @@ The current downloads and sources are listed on the [coverage page](https://m-rk
 GitHub Pages builds the filters, coverage cards, and search and social metadata from the council data file. The build also versions the asset and data URLs. To preview a branch locally with Ruby 3.3 and Bundler, run `bundle install` and `bundle exec jekyll serve --baseurl ''`. [GitHub Pages local preview guide](https://docs.github.com/en/pages/setting-up-a-github-pages-site-with-jekyll/testing-your-github-pages-site-locally-with-jekyll)
 
 Each feature has a stable string `id` beginning with its area slug and a hyphen. Its properties include `council` (the area slug), `name`, `kind` (`bay`, `approx` or `carpark`), and an HTTPS `source_url` for the original source. The files preserve notes, source references, suburbs, record IDs, use and bay counts where available. Point features use their geometry as the pin. Polygon features preserve the source shape and store the pin in `properties.marker_coordinates` in `[longitude, latitude]` order.
+
+Use `source_name` when you know the publisher’s name.
 
 ## Initial council snapshots
 
